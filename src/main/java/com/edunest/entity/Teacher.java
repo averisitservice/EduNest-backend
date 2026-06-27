@@ -26,7 +26,7 @@ public class Teacher {
     private Integer tenantId;
 
     @Column(name = "role_id", nullable = false)
-    private Long roleId;
+    private Integer roleId;
 
     @Column(name = "employee_code", nullable = false, unique = true, length = 30)
     private String employeeCode;
@@ -70,9 +70,6 @@ public class Teacher {
     @Column(name = "joining_date", nullable = false)
     private LocalDate joiningDate;
 
-    @Column(name = "employment_type", length = 30)
-    private String employmentType;
-
     @Column(name = "address_line1", length = 150)
     private String addressLine1;
 
@@ -113,5 +110,5 @@ public class Teacher {
     private LocalDateTime lastLogin;
 
     @Column(name = "employment_type_id")
-    private Long employmentTypeId;
+    private Integer employmentTypeId;
 }

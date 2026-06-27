@@ -12,7 +12,7 @@ import lombok.Setter;
 public class LoginResponse {
     private Long teacherId;
     private Integer tenantId;
-    private Long roleId;
+    private Integer roleId;
     private String username;
     private String employeeCode;
     private String email;

@@ -21,14 +21,19 @@ public class JwtHelper {
     private String secretKey;
 
     @Value("${security.jwt.expiration-time}")
-    private long jwtExpiration;
+    private long accessTokenExpiration;
+
+    @Value("${security.jwt.refresh-expiration-time}")
+    private long refreshTokenExpiration;
 
     private SecretKey signingKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     public String generateAccessToken(Teacher teacher) {
-        Date expiration = new Date(System.currentTimeMillis() + jwtExpiration * 1000);
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + accessTokenExpiration * 1000);
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("teacherId", teacher.getTeacherId());
@@ -37,27 +42,67 @@ public class JwtHelper {
         claims.put("teacherName", teacher.getFirstName() + " " + teacher.getLastName());
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(teacher.getEmail())
-                .setIssuedAt(new Date())
-                .setExpiration(expiration)
+                .claims(claims)
+                .subject(teacher.getEmail())
+                .issuedAt(now)
+                .expiration(expiry)
                 .signWith(signingKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
-    public Teacher parseToken(String token) {
-        Claims body = Jwts.parser()
-                .setSigningKey(signingKey())
+    public String generateRefreshToken(Teacher teacher) {
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + refreshTokenExpiration * 1000);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("teacherId", teacher.getTeacherId());
+        claims.put("tenantId", teacher.getTenantId());
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(teacher.getEmail())
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(signingKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    public String renewSessionJwt(Teacher teacher, String refreshToken) {
+
+        if (!validateRefreshToken(refreshToken, teacher)) {
+            throw new RuntimeException("Invalid refresh token.");
+        }
+        return generateAccessToken(teacher);
+    }
+
+    public boolean validateRefreshToken(String refreshToken, Teacher teacher) {
+        Claims claims = Jwts.parser()
+                .verifyWith(signingKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(refreshToken)
+                .getPayload();
+
+        Integer teacherId = claims.get("teacherId", Integer.class);
+
+        return teacher.getTeacherId().equals(teacherId);
+    }
+
+    public Teacher parseToken(String token) {
+
+        Claims claims = Jwts.parser()
+                .verifyWith(signingKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
 
         Teacher teacher = new Teacher();
-        teacher.setEmail(body.getSubject());
-        teacher.setTeacherId(Integer.valueOf((body.get("teacherId").toString())));
-        teacher.setTenantId(Integer.parseInt(body.get("tenantId").toString()));
-        teacher.setRoleId(Integer.parseInt(body.get("roleId").toString()));
-        teacher.setTeacherName(body.get("teacherName", String.class));
+        teacher.setEmail(claims.getSubject());
+        teacher.setTeacherId(claims.get("teacherId", Integer.class));
+        teacher.setTenantId(claims.get("tenantId", Integer.class));
+        teacher.setRoleId(claims.get("roleId", Integer.class));
+        teacher.setTeacherName(claims.get("teacherName", String.class));
+
         return teacher;
     }
 
@@ -70,21 +115,39 @@ public class JwtHelper {
 
     public Integer extractTeacherId(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(signingKey())
+                .verifyWith(signingKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
 
         return claims.get("teacherId", Integer.class);
     }
 
     public Integer extractTenantId(String token) {
         Claims claims = Jwts.parser()
-                .setSigningKey(signingKey())
+                .verifyWith(signingKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
-
+                .parseSignedClaims(token)
+                .getPayload();
         return claims.get("tenantId", Integer.class);
+    }
+
+    public boolean isTokenExpired(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(signingKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.getExpiration().before(new Date());
+    }
+
+    public boolean validateAccessToken(String token) {
+        Jwts.parser()
+                .verifyWith(signingKey())
+                .build()
+                .parseSignedClaims(token);
+
+        return true;
     }
 }

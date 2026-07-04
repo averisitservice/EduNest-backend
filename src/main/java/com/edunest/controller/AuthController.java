@@ -3,6 +3,8 @@ package com.edunest.controller;
 import com.edunest.common.ResponseObject;
 import com.edunest.dto.LoginRequest;
 import com.edunest.dto.LoginResponse;
+import com.edunest.dto.RenewSessionRequest;
+import com.edunest.dto.RenewSessionResponse;
 import com.edunest.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,17 @@ public class AuthController {
         ResponseObject<LoginResponse> response = new ResponseObject<>();
         response.setSuccess(true);
         response.setData(authService.login(loginRequest));
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/renew-session")
+    public ResponseEntity<ResponseObject<RenewSessionResponse>> renewSession(
+            @RequestBody RenewSessionRequest request) {
+        System.out.println("harshid");
+        ResponseObject<RenewSessionResponse> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(authService.renewSession(request));
 
         return ResponseEntity.ok(response);
     }

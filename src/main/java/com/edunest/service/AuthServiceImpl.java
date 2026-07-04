@@ -1,10 +1,7 @@
 package com.edunest.service;
 
 import com.edunest.configuration.JwtHelper;
-import com.edunest.dto.LoginRequest;
-import com.edunest.dto.LoginResponse;
-import com.edunest.dto.TeacherResponse;
-import com.edunest.dto.TenantResponse;
+import com.edunest.dto.*;
 import com.edunest.entity.Teacher;
 import com.edunest.entity.Tenant;
 import com.edunest.error.CustomException;
@@ -52,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
         teacherRepository.save(teacher);
 
         String session = jwtHelper.generateAccessToken(teacher);
-        String refresh = jwtHelper.generateAccessToken(teacher);
+        String refresh = jwtHelper.generateRefreshToken(teacher);
 
         TenantResponse response = new TenantResponse();
         response.setTenantId(tenant.getTenantId());
@@ -77,5 +74,15 @@ public class AuthServiceImpl implements AuthService {
         loginResponse.setTenant(response);
 
         return loginResponse;
+    }
+
+    public RenewSessionResponse renewSession(RenewSessionRequest request) {
+
+        Teacher teacher = teacherRepository.findById(request.getTeacherId())
+                .orElseThrow(() -> new CustomException("Teacher", "Teacher not found"));
+
+        String newSession = jwtHelper.renewSessionJwt(teacher, request.getRefreshToken());
+
+        return new RenewSessionResponse(new RenewSessionResponse.Token(newSession));
     }
 }

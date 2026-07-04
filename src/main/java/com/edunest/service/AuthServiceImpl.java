@@ -3,6 +3,8 @@ package com.edunest.service;
 import com.edunest.configuration.JwtHelper;
 import com.edunest.dto.LoginRequest;
 import com.edunest.dto.LoginResponse;
+import com.edunest.dto.TeacherResponse;
+import com.edunest.dto.TenantResponse;
 import com.edunest.entity.Teacher;
 import com.edunest.entity.Tenant;
 import com.edunest.error.CustomException;
@@ -52,11 +54,27 @@ public class AuthServiceImpl implements AuthService {
         String session = jwtHelper.generateAccessToken(teacher);
         String refresh = jwtHelper.generateAccessToken(teacher);
 
+        TenantResponse response = new TenantResponse();
+        response.setTenantId(tenant.getTenantId());
+        response.setFaviconUrl(tenant.getFaviconUrl());
+        response.setLogoUrl(tenant.getLogoUrl());
+        response.setTenantName(tenant.getTenantName());
+        response.setSingleLogoUrl(tenant.getSingleLogoUrl());
+        response.setPrimaryColor(tenant.getPrimaryColor());
+        response.setFaviconUrl(tenant.getFaviconUrl());
+
+        TeacherResponse teacherResponse = new TeacherResponse();
+        teacherResponse.setTeacherId(teacher.getTeacherId());
+        teacherResponse.setTeacherName(teacherResponse.getTeacherName());
+        teacherResponse.setEmail(teacher.getEmail());
+        teacherResponse.setRoleId(teacher.getRoleId());
+        teacherResponse.setEmail(teacher.getEmail());
+
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setSession(session);
         loginResponse.setRefresh(refresh);
-        loginResponse.setTeacher(teacher);
-        loginResponse.setTenant(tenant);
+        loginResponse.setTeacher(teacherResponse);
+        loginResponse.setTenant(response);
 
         return loginResponse;
     }

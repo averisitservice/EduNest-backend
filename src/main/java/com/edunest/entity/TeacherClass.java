@@ -26,16 +26,6 @@ public class TeacherClass {
     @Column(name = "class_id", nullable = false)
     private Integer classId;
 
-    @Column(name = "section", length = 10)
-    private String section;
-
-    @Column(name = "academic_year_id", nullable = false)
-    private Integer academicYearId;
-
-    @Column(name = "is_class_teacher")
-    @Builder.Default
-    private Boolean isClassTeacher = false;
-
     @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;

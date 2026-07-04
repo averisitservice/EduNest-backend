@@ -13,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeacherDTO {
+    private Integer teacherId;
     private Integer roleId;
     private String password;
     private String firstName;

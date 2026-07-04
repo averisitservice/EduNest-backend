@@ -132,9 +132,6 @@ public class TeacherServiceImpl implements TeacherService {
                 teacherClass.setTenantId(tenantId);
                 teacherClass.setTeacherId(savedTeacherId);
                 teacherClass.setClassId(tc.getClassId());
-                teacherClass.setSection(tc.getSection());
-                teacherClass.setAcademicYearId(tc.getAcademicYearId());
-                teacherClass.setIsClassTeacher(tc.getIsClassTeacher() != null && tc.getIsClassTeacher());
                 teacherClass.setIsActive(true);
                 teacherClassRepository.save(teacherClass);
             }
@@ -173,9 +170,6 @@ public class TeacherServiceImpl implements TeacherService {
         for (TeacherClass tc : teacherClasses) {
             TeacherClassRequest tcRequest = new TeacherClassRequest();
             tcRequest.setClassId(tc.getClassId());
-            tcRequest.setSection(tc.getSection());
-            tcRequest.setAcademicYearId(tc.getAcademicYearId());
-            tcRequest.setIsClassTeacher(tc.getIsClassTeacher());
             teacherClassRequests.add(tcRequest);
         }
 

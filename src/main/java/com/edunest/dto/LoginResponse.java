@@ -1,7 +1,5 @@
 package com.edunest.dto;
 
-import com.edunest.entity.Teacher;
-import com.edunest.entity.Tenant;
 import lombok.*;
 
 @Getter
@@ -11,6 +9,6 @@ import lombok.*;
 public class LoginResponse {
     private String session;
     private String refresh;
-    private Teacher teacher;
-    private Tenant tenant;
+    private TeacherResponse teacher;
+    private TenantResponse tenant;
 }

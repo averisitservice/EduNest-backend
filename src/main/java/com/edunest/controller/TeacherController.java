@@ -2,8 +2,8 @@ package com.edunest.controller;
 
 import com.edunest.common.ResponseObject;
 import com.edunest.configuration.JwtHelper;
-import com.edunest.dto.TeacherListResponse;
 import com.edunest.dto.TeacherDTO;
+import com.edunest.dto.TeacherListResponse;
 import com.edunest.service.TeacherService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +37,8 @@ public class TeacherController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{teacherId}")
-    public ResponseEntity<ResponseObject<Boolean>> saveTeacher(
-            HttpServletRequest request,
-            @PathVariable(required = false) Integer teacherId,
-            @RequestBody TeacherDTO teacherDTO) {
-
+    @PostMapping
+    public ResponseEntity<ResponseObject<Boolean>> saveTeacher(HttpServletRequest request, @RequestBody TeacherDTO teacherDTO) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = jwtHelper.cleanToken(authHeader);
         Integer tenantId = jwtHelper.extractTenantId(token);
@@ -50,13 +46,13 @@ public class TeacherController {
 
         ResponseObject<Boolean> response = new ResponseObject<>();
         response.setSuccess(true);
-        response.setData(teacherService.saveTeacher(teacherId, tenantId, loginTeacherId, teacherDTO));
+        response.setData(teacherService.saveTeacher(teacherDTO.getTeacherId(), tenantId, loginTeacherId, teacherDTO));
+
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{teacherId}")
-    public ResponseEntity<ResponseObject<TeacherDTO>> getTeacherById(
-            @PathVariable Integer teacherId) {
+    public ResponseEntity<ResponseObject<TeacherDTO>> getTeacherById(@PathVariable Integer teacherId) {
 
         ResponseObject<TeacherDTO> response = new ResponseObject<>();
         response.setSuccess(true);

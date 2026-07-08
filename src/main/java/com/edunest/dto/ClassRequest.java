@@ -1,6 +1,11 @@
 package com.edunest.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -8,7 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ClassRequest {
-    private String       className;
-    private Integer      academicYearId;
+    private Integer classId;
+    private String className;
+    private BigDecimal annualFee;
+    private List<String> sections;
     private List<Integer> subjectIds;
 }

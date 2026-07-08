@@ -37,34 +37,41 @@ public class ClassController {
         return ResponseEntity.ok(response);
     }
 
-
-    @PostMapping("/{classId}")
-    public ResponseEntity<ResponseObject<Boolean>> saveClass(
-            HttpServletRequest request,
-            @PathVariable(required = false) Integer classId,
-            @RequestBody ClassRequest classRequest) {
-
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String token = jwtHelper.cleanToken(authHeader);
-        Integer tenantId = jwtHelper.extractTenantId(token);
-        Integer loginTeacherId = jwtHelper.extractTeacherId(token);
-
-        ResponseObject<Boolean> response = new ResponseObject<>();
-        response.setSuccess(true);
-        response.setData(classService.saveClass(classId, tenantId, loginTeacherId, classRequest));
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{classId}")
-    public ResponseEntity<ResponseObject<String>> deleteClass(
+    @GetMapping("/{classId}")
+    public ResponseEntity<ResponseObject<ClassRequest>> getClassById(
             HttpServletRequest request,
             @PathVariable Integer classId) {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = jwtHelper.cleanToken(authHeader);
-        Integer loginTeacherId = jwtHelper.extractTeacherId(token);
+        Integer tenantId = jwtHelper.extractTenantId(token);
 
-        boolean isDeleted = classService.deleteClass(classId, loginTeacherId);
+        ResponseObject<ClassRequest> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(classService.getClassById(classId, tenantId));
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping
+    public ResponseEntity<ResponseObject<Boolean>> saveClass(
+            HttpServletRequest request,
+            @RequestBody ClassRequest classRequest) {
+
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = jwtHelper.cleanToken(authHeader);
+        Integer tenantId = jwtHelper.extractTenantId(token);
+
+        ResponseObject<Boolean> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(classService.saveClass(classRequest.getClassId(), tenantId, classRequest));
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{classId}")
+    public ResponseEntity<ResponseObject<String>> deleteClass(
+            @PathVariable Integer classId) {
+
+        boolean isDeleted = classService.deleteClass(classId);
 
         ResponseObject<String> response = new ResponseObject<>();
         response.setSuccess(true);

@@ -4,32 +4,26 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "teacher_class", schema = "school")
+@Table(name = "class_section", schema = "lookup")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TeacherClass {
+public class ClassSection {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "teacher_class_id")
-    private Integer teacherClassId;
+    @Column(name = "section_id")
+    private Integer sectionId;
 
     @Column(name = "tenant_id", nullable = false)
     private Integer tenantId;
 
-    @Column(name = "teacher_id", nullable = false)
-    private Integer teacherId;
-
     @Column(name = "class_id", nullable = false)
     private Integer classId;
 
-    @Column(name = "section_id")
-    private Integer sectionId;
-
-    @Column(name = "academic_year_id")
-    private Integer academicYearId;
+    @Column(name = "section_name", nullable = false, length = 10)
+    private String sectionName;
 
     @Column(name = "is_active")
     private Boolean isActive = true;

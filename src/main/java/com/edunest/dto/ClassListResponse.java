@@ -1,6 +1,7 @@
 package com.edunest.dto;
 
 import lombok.*;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -11,5 +12,7 @@ public class ClassListResponse {
     private Integer      classId;
     private String       className;
     private Boolean      isActive;
+    private BigDecimal   annualFee;
+    private List<String> sections;
     private List<String> subjects;
 }

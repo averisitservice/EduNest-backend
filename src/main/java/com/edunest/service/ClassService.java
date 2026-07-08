@@ -8,7 +8,9 @@ import java.util.List;
 public interface ClassService {
     List<ClassListResponse> getClassList(Integer tenantId);
 
-    boolean saveClass(Integer classId, Integer tenantId, Integer loginTeacherId, ClassRequest request);
+    ClassRequest getClassById(Integer classId, Integer tenantId);
 
-    boolean deleteClass(Integer classId, Integer loginTeacherId);
+    boolean saveClass(Integer classId, Integer tenantId, ClassRequest request);
+
+    boolean deleteClass(Integer classId);
 }

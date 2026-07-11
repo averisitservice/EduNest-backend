@@ -2,6 +2,7 @@ package com.edunest.controller;
 
 import com.edunest.common.ResponseObject;
 import com.edunest.configuration.JwtHelper;
+import com.edunest.dto.classes.ClassSectionResponse;
 import com.edunest.entity.ClassMaster;
 import com.edunest.entity.EmploymentType;
 import com.edunest.entity.Role;
@@ -65,6 +66,19 @@ public class LookupController {
         ResponseObject<List<ClassMaster>> response = new ResponseObject<>();
         response.setSuccess(true);
         response.setData(lookupService.getAllClassMaster(tenantId));
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/classSection")
+    public ResponseEntity<ResponseObject<List<ClassSectionResponse>>> getAllClassMasterWithSections(HttpServletRequest request) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = jwtHelper.cleanToken(authHeader);
+        int tenantId = jwtHelper.extractTenantId(token);
+
+        ResponseObject<List<ClassSectionResponse>> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(lookupService.getAllClassMasterWithSections(tenantId));
 
         return ResponseEntity.ok(response);
     }

@@ -1,7 +1,7 @@
 package com.edunest.service;
 
-import com.edunest.dto.ClassListResponse;
-import com.edunest.dto.ClassRequest;
+import com.edunest.dto.classes.ClassListResponse;
+import com.edunest.dto.classes.ClassRequest;
 
 import java.util.List;
 

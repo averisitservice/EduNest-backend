@@ -2,8 +2,8 @@ package com.edunest.controller;
 
 import com.edunest.common.ResponseObject;
 import com.edunest.configuration.JwtHelper;
-import com.edunest.dto.TeacherDTO;
-import com.edunest.dto.TeacherListResponse;
+import com.edunest.dto.teacher.TeacherDTO;
+import com.edunest.dto.teacher.TeacherListResponse;
 import com.edunest.service.TeacherService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;

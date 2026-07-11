@@ -1,5 +1,6 @@
 package com.edunest.service;
 
+import com.edunest.dto.classes.ClassSectionResponse;
 import com.edunest.entity.ClassMaster;
 import com.edunest.entity.EmploymentType;
 import com.edunest.entity.Role;
@@ -20,4 +21,6 @@ public interface LookupService {
     List<ClassMaster> getAllClassMaster(int tenantId);
 
     boolean saveSubject(Integer tenantId, Subject subject);
+
+    List<ClassSectionResponse> getAllClassMasterWithSections(int tenantId);
 }

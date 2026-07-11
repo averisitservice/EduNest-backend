@@ -1,9 +1,9 @@
 package com.edunest.service;
 
-import com.edunest.dto.TeacherClassRequest;
-import com.edunest.dto.TeacherDTO;
-import com.edunest.dto.TeacherListResponse;
-import com.edunest.dto.TeacherSubjectRequest;
+import com.edunest.dto.teacher.TeacherClassRequest;
+import com.edunest.dto.teacher.TeacherDTO;
+import com.edunest.dto.teacher.TeacherListResponse;
+import com.edunest.dto.teacher.TeacherSubjectRequest;
 import com.edunest.entity.Teacher;
 import com.edunest.entity.TeacherClass;
 import com.edunest.entity.TeacherSubject;
@@ -132,6 +132,7 @@ public class TeacherServiceImpl implements TeacherService {
                 teacherClass.setTenantId(tenantId);
                 teacherClass.setTeacherId(savedTeacherId);
                 teacherClass.setClassId(tc.getClassId());
+                teacherClass.setSectionId(tc.getSectionId());
                 teacherClass.setIsActive(true);
                 teacherClassRepository.save(teacherClass);
             }
@@ -170,6 +171,7 @@ public class TeacherServiceImpl implements TeacherService {
         for (TeacherClass tc : teacherClasses) {
             TeacherClassRequest tcRequest = new TeacherClassRequest();
             tcRequest.setClassId(tc.getClassId());
+            tcRequest.setSectionId(tc.getSectionId());
             teacherClassRequests.add(tcRequest);
         }
 

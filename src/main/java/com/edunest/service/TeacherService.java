@@ -1,7 +1,7 @@
 package com.edunest.service;
 
-import com.edunest.dto.TeacherDTO;
-import com.edunest.dto.TeacherListResponse;
+import com.edunest.dto.teacher.TeacherDTO;
+import com.edunest.dto.teacher.TeacherListResponse;
 
 import java.util.List;
 

@@ -1,7 +1,8 @@
 package com.edunest.service;
 
 import com.edunest.configuration.JwtHelper;
-import com.edunest.dto.*;
+import com.edunest.dto.auth.*;
+import com.edunest.dto.teacher.TeacherResponse;
 import com.edunest.entity.Teacher;
 import com.edunest.entity.Tenant;
 import com.edunest.error.CustomException;

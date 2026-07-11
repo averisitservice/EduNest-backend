@@ -1,4 +1,4 @@
-package com.edunest.dto;
+package com.edunest.dto.auth;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,5 +1,6 @@
-package com.edunest.dto;
+package com.edunest.dto.auth;
 
+import com.edunest.dto.teacher.TeacherResponse;
 import lombok.*;
 
 @Getter

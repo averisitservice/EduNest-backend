@@ -1,4 +1,4 @@
-package com.edunest.dto;
+package com.edunest.dto.teacher;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RenewSessionRequest {
+public class TeacherResponse {
     private Integer teacherId;
-    private String refreshToken;
+    private Integer roleId;
+    private Integer employmentTypeId;
+    private String teacherName;
+    private String email;
 }

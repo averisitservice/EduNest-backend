@@ -11,4 +11,6 @@ public interface ClassSectionRepository extends JpaRepository<ClassSection, Inte
     List<ClassSection> findByClassIdAndTenantId(Integer classId, Integer tenantId);
 
     List<ClassSection> findByTenantId(Integer tenantId);
+
+    List<ClassSection> findByTenantIdAndClassIdAndIsActiveTrue(Integer tenantId, Integer classId);
 }

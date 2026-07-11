@@ -30,8 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/renew-session")
-    public ResponseEntity<ResponseObject<RenewSessionResponse>> renewSession(
-            @RequestBody RenewSessionRequest request) {
+    public ResponseEntity<ResponseObject<RenewSessionResponse>> renewSession(@RequestBody RenewSessionRequest request) {
         ResponseObject<RenewSessionResponse> response = new ResponseObject<>();
         response.setSuccess(true);
         response.setData(authService.renewSession(request));

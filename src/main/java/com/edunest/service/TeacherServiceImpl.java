@@ -158,14 +158,11 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public TeacherDTO getTeacherById(Integer teacherId) {
-        Teacher teacher = teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new CustomException("Teacher", "Teacher not found"));
+        Teacher teacher = teacherRepository.findById(teacherId).orElseThrow(() -> new CustomException("Teacher", "Teacher not found"));
 
-        List<TeacherClass> teacherClasses = teacherClassRepository
-                .findByTeacherIdAndTenantId(teacherId, teacher.getTenantId());
+        List<TeacherClass> teacherClasses = teacherClassRepository.findByTeacherIdAndTenantId(teacherId, teacher.getTenantId());
 
-        List<TeacherSubject> teacherSubjects = teacherSubjectRepository
-                .findByTeacherIdAndTenantId(teacherId, teacher.getTenantId());
+        List<TeacherSubject> teacherSubjects = teacherSubjectRepository.findByTeacherIdAndTenantId(teacherId, teacher.getTenantId());
 
         List<TeacherClassRequest> teacherClassRequests = new ArrayList<>();
         for (TeacherClass tc : teacherClasses) {

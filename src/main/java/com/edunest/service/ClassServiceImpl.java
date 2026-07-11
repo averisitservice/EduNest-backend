@@ -131,17 +131,19 @@ public class ClassServiceImpl implements ClassService {
         ClassMaster savedClass = classMasterRepository.save(classMaster);
         Integer savedClassId = savedClass.getClassId();
 
+        if (isEdit) {
+            List<ClassSection> oldSections = classSectionRepository.findByClassIdAndTenantId(savedClassId, tenantId);
+            classSectionRepository.deleteAll(oldSections);
+        }
+
         if (request.getSections() != null && !request.getSections().isEmpty()) {
-            if (isEdit) {
-                List<ClassSection> oldSections = classSectionRepository.findByClassIdAndTenantId(savedClassId, tenantId);
-                classSectionRepository.deleteAll(oldSections);
-            }
             for (String sectionName : request.getSections()) {
                 ClassSection classSection = new ClassSection();
                 classSection.setTenantId(tenantId);
                 classSection.setClassId(savedClassId);
                 classSection.setSectionName(sectionName);
                 classSection.setIsActive(true);
+
                 classSectionRepository.save(classSection);
             }
         }

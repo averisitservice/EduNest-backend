@@ -24,8 +24,7 @@ public class ClassController {
     JwtHelper jwtHelper;
 
     @GetMapping("/list")
-    public ResponseEntity<ResponseObject<List<ClassListResponse>>> getClassList(
-            HttpServletRequest request) {
+    public ResponseEntity<ResponseObject<List<ClassListResponse>>> getClassList(HttpServletRequest request) {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = jwtHelper.cleanToken(authHeader);
@@ -38,9 +37,7 @@ public class ClassController {
     }
 
     @GetMapping("/{classId}")
-    public ResponseEntity<ResponseObject<ClassRequest>> getClassById(
-            HttpServletRequest request,
-            @PathVariable Integer classId) {
+    public ResponseEntity<ResponseObject<ClassRequest>> getClassById(HttpServletRequest request, @PathVariable Integer classId) {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = jwtHelper.cleanToken(authHeader);
@@ -53,9 +50,7 @@ public class ClassController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseObject<Boolean>> saveClass(
-            HttpServletRequest request,
-            @RequestBody ClassRequest classRequest) {
+    public ResponseEntity<ResponseObject<Boolean>> saveClass(HttpServletRequest request, @RequestBody ClassRequest classRequest) {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = jwtHelper.cleanToken(authHeader);
@@ -68,8 +63,7 @@ public class ClassController {
     }
 
     @DeleteMapping("/{classId}")
-    public ResponseEntity<ResponseObject<String>> deleteClass(
-            @PathVariable Integer classId) {
+    public ResponseEntity<ResponseObject<String>> deleteClass(@PathVariable Integer classId) {
 
         boolean isDeleted = classService.deleteClass(classId);
 

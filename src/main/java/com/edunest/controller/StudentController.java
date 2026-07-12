@@ -1,0 +1,80 @@
+package com.edunest.controller;
+
+import com.edunest.common.ResponseObject;
+import com.edunest.configuration.JwtHelper;
+import com.edunest.dto.student.StudentListResponse;
+import com.edunest.dto.student.StudentRequest;
+import com.edunest.service.StudentService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/student")
+public class StudentController {
+
+    @Autowired
+    StudentService studentService;
+
+    @Autowired
+    JwtHelper jwtHelper;
+
+    @GetMapping("/list")
+    public ResponseEntity<ResponseObject<List<StudentListResponse>>> getStudentList(HttpServletRequest request) {
+
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = jwtHelper.cleanToken(authHeader);
+        Integer tenantId = jwtHelper.extractTenantId(token);
+
+        ResponseObject<List<StudentListResponse>> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(studentService.getStudentList(tenantId));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{studentId}")
+    public ResponseEntity<ResponseObject<StudentRequest>> getStudentById(HttpServletRequest request, @PathVariable Integer studentId) {
+
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = jwtHelper.cleanToken(authHeader);
+        Integer tenantId = jwtHelper.extractTenantId(token);
+
+        ResponseObject<StudentRequest> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(studentService.getStudentById(studentId, tenantId));
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping
+    public ResponseEntity<ResponseObject<Boolean>> saveStudent(HttpServletRequest request, @RequestBody StudentRequest studentRequest) {
+
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = jwtHelper.cleanToken(authHeader);
+        Integer tenantId = jwtHelper.extractTenantId(token);
+        Integer loginTeacherId = jwtHelper.extractTeacherId(token);
+
+        ResponseObject<Boolean> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(studentService.saveStudent(tenantId, loginTeacherId, studentRequest));
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{studentId}")
+    public ResponseEntity<ResponseObject<String>> deleteStudent(HttpServletRequest request, @PathVariable Integer studentId) {
+
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = jwtHelper.cleanToken(authHeader);
+        Integer loginTeacherId = jwtHelper.extractTeacherId(token);
+
+        boolean isDeleted = studentService.deleteStudent(studentId, loginTeacherId);
+
+        ResponseObject<String> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(isDeleted ? "Student deleted successfully" : "Student not deleted");
+        return ResponseEntity.ok(response);
+    }
+}

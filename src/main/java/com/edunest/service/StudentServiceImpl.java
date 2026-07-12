@@ -1,0 +1,225 @@
+package com.edunest.service;
+
+
+import com.edunest.dto.student.StudentListResponse;
+import com.edunest.dto.student.StudentRequest;
+import com.edunest.entity.*;
+import com.edunest.error.CustomException;
+import com.edunest.helper.CryptoHelper;
+import com.edunest.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class StudentServiceImpl implements StudentService {
+
+    @Autowired
+    StudentRepository studentRepository;
+
+    @Autowired
+    StudentClassRepository studentClassRepository;
+
+    @Autowired
+    ClassSectionRepository classSectionRepository;
+
+    @Autowired
+    ClassMasterRepository classMasterRepository;
+
+    @Autowired
+    AcademicYearRepository academicYearRepository;
+
+    @Autowired
+    TeacherRepository teacherRepository;
+
+    @Override
+    public List<StudentListResponse> getStudentList(Integer tenantId) {
+        List<Student> students = studentRepository.findByTenantIdAndIsActiveTrue(tenantId);
+        List<StudentListResponse> responseList = new ArrayList<>();
+
+        for (Student student : students) {
+            StudentClass studentClass = studentClassRepository
+                    .findByStudentIdAndTenantId(student.getStudentId(), tenantId).orElse(null);
+
+            String className = null;
+            String sectionName = null;
+            String displayClass = null;
+            String rollNo = null;
+
+            if (studentClass != null) {
+                ClassMaster classMaster = classMasterRepository
+                        .findById(studentClass.getClassId()).orElse(null);
+                ClassSection classSection = classSectionRepository
+                        .findById(studentClass.getSectionId()).orElse(null);
+
+                className = classMaster != null ? classMaster.getClassName() : null;
+                sectionName = classSection != null ? classSection.getSectionName() : null;
+                displayClass = (className != null && sectionName != null)
+                        ? className + " - " + sectionName : className;
+                rollNo = studentClass.getRollNo();
+            }
+
+            String updatedByName = null;
+            if (student.getUpdatedBy() != null) {
+                Teacher updatedByTeacher = teacherRepository.findById(student.getUpdatedBy()).orElse(null);
+                if (updatedByTeacher != null) {
+                    updatedByName = updatedByTeacher.getTeacherName();
+                }
+            }
+
+            StudentListResponse response = new StudentListResponse();
+            response.setStudentId(student.getStudentId());
+            response.setAdmissionNo(student.getAdmissionNo());
+            response.setStudentName(student.getFirstName() + " " + student.getLastName());
+            response.setGender(student.getGender());
+            response.setDateOfBirth(student.getDateOfBirth());
+            response.setMobileNo(student.getMobileNo());
+            response.setEmail(student.getEmail());
+            response.setClassName(className);
+            response.setSectionName(sectionName);
+            response.setDisplayClass(displayClass);
+            response.setRollNo(rollNo);
+            response.setIsActive(student.getIsActive());
+            response.setLastLogin(student.getLastLogin());
+            response.setFatherName(student.getFatherName());
+            response.setParentMobile(student.getParentMobile());
+            response.setUpdatedDate(student.getUpdatedDate());
+            response.setUpdatedBy(updatedByName);
+            responseList.add(response);
+        }
+        return responseList;
+    }
+
+    @Override
+    public StudentRequest getStudentById(Integer studentId, Integer tenantId) {
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new CustomException("studentId", "Student not found"));
+
+        StudentClass studentClass = studentClassRepository.findByStudentIdAndTenantId(studentId, tenantId).orElse(null);
+
+        StudentRequest request = new StudentRequest();
+        request.setStudentId(student.getStudentId());
+        request.setFirstName(student.getFirstName());
+        request.setMiddleName(student.getMiddleName());
+        request.setLastName(student.getLastName());
+        request.setGender(student.getGender());
+        request.setDateOfBirth(student.getDateOfBirth());
+        request.setAadharNo(student.getAadharNo());
+        request.setEmail(student.getEmail());
+        request.setMobileNo(student.getMobileNo());
+        request.setAddressLine1(student.getAddressLine1());
+        request.setCity(student.getCity());
+        request.setState(student.getState());
+        request.setPostalCode(student.getPostalCode());
+        request.setFatherName(student.getFatherName());
+        request.setMotherName(student.getMotherName());
+        request.setParentMobile(student.getParentMobile());
+        request.setParentEmail(student.getParentEmail());
+        request.setParentAadhar(student.getParentAadhar());
+
+        if (studentClass != null) {
+            request.setSectionId(studentClass.getSectionId());
+            request.setRollNo(studentClass.getRollNo());
+        }
+        return request;
+    }
+
+    @Override
+    @Transactional
+    public boolean saveStudent(Integer tenantId, Integer loginTeacherId, StudentRequest request) {
+
+        boolean isEdit = (request.getStudentId() != null);
+        Student student;
+
+        AcademicYear currentYear = academicYearRepository.findByTenantIdAndIsCurrentTrue(tenantId);
+        if (currentYear == null) {
+            throw new CustomException("academicYear", "No active academic year found");
+        }
+
+        if (isEdit) {
+            student = studentRepository.findById(request.getStudentId())
+                    .orElseThrow(() -> new CustomException("studentId", "Student not found"));
+        } else {
+            student = new Student();
+            student.setTenantId(tenantId);
+            student.setAdmissionNo(generateAdmissionNo(tenantId));
+            student.setHashkey(CryptoHelper.getHashKey());
+            student.setUsername(generateUsername(request.getFirstName(), request.getDateOfBirth()));
+            student.setPassword(CryptoHelper.encryptPassword(request.getMobileNo(), CryptoHelper.getHashKey()));
+            student.setIsActive(true);
+            student.setCreatedBy(loginTeacherId);
+        }
+
+        student.setFirstName(request.getFirstName());
+        student.setMiddleName(request.getMiddleName());
+        student.setLastName(request.getLastName());
+        student.setGender(request.getGender());
+        student.setDateOfBirth(request.getDateOfBirth());
+        student.setAadharNo(request.getAadharNo());
+        student.setEmail(request.getEmail());
+        student.setMobileNo(request.getMobileNo());
+        student.setAddressLine1(request.getAddressLine1());
+        student.setCity(request.getCity());
+        student.setState(request.getState());
+        student.setPostalCode(request.getPostalCode());
+        student.setFatherName(request.getFatherName());
+        student.setMotherName(request.getMotherName());
+        student.setParentMobile(request.getParentMobile());
+        student.setParentEmail(request.getParentEmail());
+        student.setParentAadhar(request.getParentAadhar());
+        student.setUpdatedBy(loginTeacherId);
+        student.setUpdatedDate(LocalDateTime.now());
+
+        Student savedStudent = studentRepository.save(student);
+        Integer savedStudentId = savedStudent.getStudentId();
+
+        if (request.getSectionId() != null) {
+            ClassSection section = classSectionRepository.findById(request.getSectionId()).orElse(null);
+            StudentClass studentClass = studentClassRepository.findByStudentIdAndTenantId(savedStudentId, tenantId).orElse(null);
+
+            if (studentClass == null) {
+                studentClass = new StudentClass();
+                studentClass.setTenantId(tenantId);
+                studentClass.setStudentId(savedStudentId);
+                studentClass.setIsActive(true);
+            }
+            studentClass.setClassId(section != null ? section.getClassId() : null);
+            studentClass.setSectionId(request.getSectionId());
+            studentClass.setAcademicYearId(currentYear.getAcademicYearId());
+            studentClass.setRollNo(request.getRollNo());
+            studentClassRepository.save(studentClass);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean deleteStudent(Integer studentId, Integer loginTeacherId) {
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new CustomException("studentId", "Student not found"));
+        student.setIsActive(false);
+        student.setUpdatedBy(loginTeacherId);
+        student.setUpdatedDate(LocalDateTime.now());
+        studentRepository.save(student);
+        return true;
+    }
+
+    private String generateAdmissionNo(Integer tenantId) {
+        String year = String.valueOf(LocalDate.now().getYear());
+        String lastNo = studentRepository.findLastAdmissionNo(tenantId, year);
+        int sequence = 1;
+        if (lastNo != null) {
+            sequence = Integer.parseInt(lastNo.split("-")[1]) + 1;
+        }
+        return year + "-" + String.format("%03d", sequence);
+    }
+
+    private String generateUsername(String firstName, LocalDate dob) {
+        String day = String.format("%02d", dob.getDayOfMonth());
+        String month = String.format("%02d", dob.getMonthValue());
+        return firstName + day + month;
+    }
+}

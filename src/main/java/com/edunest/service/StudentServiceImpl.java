@@ -43,8 +43,7 @@ public class StudentServiceImpl implements StudentService {
         List<StudentListResponse> responseList = new ArrayList<>();
 
         for (Student student : students) {
-            StudentClass studentClass = studentClassRepository
-                    .findByStudentIdAndTenantId(student.getStudentId(), tenantId).orElse(null);
+            StudentClass studentClass = studentClassRepository.findByStudentIdAndTenantId(student.getStudentId(), tenantId).orElse(null);
 
             String className = null;
             String sectionName = null;
@@ -52,15 +51,14 @@ public class StudentServiceImpl implements StudentService {
             String rollNo = null;
 
             if (studentClass != null) {
-                ClassMaster classMaster = classMasterRepository
-                        .findById(studentClass.getClassId()).orElse(null);
-                ClassSection classSection = classSectionRepository
-                        .findById(studentClass.getSectionId()).orElse(null);
-
+                ClassMaster classMaster = classMasterRepository.findById(studentClass.getClassId()).orElse(null);
+                ClassSection classSection = null;
+                if (studentClass.getSectionId() != null) {
+                    classSection = classSectionRepository.findById(studentClass.getSectionId()).orElse(null);
+                }
                 className = classMaster != null ? classMaster.getClassName() : null;
                 sectionName = classSection != null ? classSection.getSectionName() : null;
-                displayClass = (className != null && sectionName != null)
-                        ? className + " - " + sectionName : className;
+                displayClass = (className != null && sectionName != null) ? className + " - " + sectionName : className;
                 rollNo = studentClass.getRollNo();
             }
 
@@ -123,6 +121,7 @@ public class StudentServiceImpl implements StudentService {
 
         if (studentClass != null) {
             request.setSectionId(studentClass.getSectionId());
+            request.setClassId(studentClass.getClassId());
             request.setRollNo(studentClass.getRollNo());
         }
         return request;
@@ -141,8 +140,7 @@ public class StudentServiceImpl implements StudentService {
         }
 
         if (isEdit) {
-            student = studentRepository.findById(request.getStudentId())
-                    .orElseThrow(() -> new CustomException("studentId", "Student not found"));
+            student = studentRepository.findById(request.getStudentId()).orElseThrow(() -> new CustomException("studentId", "Student not found"));
         } else {
             student = new Student();
             student.setTenantId(tenantId);
@@ -177,20 +175,19 @@ public class StudentServiceImpl implements StudentService {
         Student savedStudent = studentRepository.save(student);
         Integer savedStudentId = savedStudent.getStudentId();
 
-        if (request.getSectionId() != null) {
-            ClassSection section = classSectionRepository.findById(request.getSectionId()).orElse(null);
-            StudentClass studentClass = studentClassRepository.findByStudentIdAndTenantId(savedStudentId, tenantId).orElse(null);
+        if (request.getClassId() != null || request.getSectionId() != null) {
+            StudentClass studentClass = studentClassRepository.findByStudentIdAndTenantId(savedStudentId, tenantId).orElse(new StudentClass());
 
-            if (studentClass == null) {
-                studentClass = new StudentClass();
+            if (studentClass.getStudentClassId() == null) {
                 studentClass.setTenantId(tenantId);
                 studentClass.setStudentId(savedStudentId);
                 studentClass.setIsActive(true);
             }
-            studentClass.setClassId(section != null ? section.getClassId() : null);
+            studentClass.setClassId(request.getClassId());
             studentClass.setSectionId(request.getSectionId());
             studentClass.setAcademicYearId(currentYear.getAcademicYearId());
             studentClass.setRollNo(request.getRollNo());
+
             studentClassRepository.save(studentClass);
         }
 

@@ -29,6 +29,7 @@ public class StudentRequest {
     private String parentMobile;
     private String parentEmail;
     private String parentAadhar;
+    private Integer classId;
     private Integer sectionId;
     private String rollNo;
 }

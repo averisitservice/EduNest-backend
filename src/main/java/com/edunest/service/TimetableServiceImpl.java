@@ -38,8 +38,7 @@ public class TimetableServiceImpl implements TimetableService {
     @Transactional
     public boolean saveWorkingDays(Integer tenantId, WorkingDayRequest request) {
         for (WorkingDayRequest.WorkingDayItem item : request.getWorkingDays()) {
-            WorkingDay workingDay = workingDayRepository
-                    .findByTenantIdAndDayName(tenantId, item.getDayName());
+            WorkingDay workingDay = workingDayRepository.findByTenantIdAndDayName(tenantId, item.getDayName());
             workingDay.setTenantId(tenantId);
             workingDay.setDayName(item.getDayName());
             workingDay.setDayOrder(item.getDayOrder());
@@ -51,8 +50,7 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Override
     public List<WorkingDay> getWorkingDays(Integer tenantId) {
-        return workingDayRepository
-                .findByTenantIdAndIsActiveTrueOrderByDayOrder(tenantId);
+        return workingDayRepository.findByTenantIdAndIsActiveTrueOrderByDayOrder(tenantId);
     }
 
     @Override
@@ -61,8 +59,7 @@ public class TimetableServiceImpl implements TimetableService {
         for (TimeSlotRequest.TimeSlotItem item : request.getTimeSlots()) {
             TimeSlot timeSlot;
             if (item.getTimeSlotId() != null) {
-                timeSlot = timeSlotRepository.findById(item.getTimeSlotId())
-                        .orElse(new TimeSlot());
+                timeSlot = timeSlotRepository.findById(item.getTimeSlotId()).orElse(new TimeSlot());
             } else {
                 timeSlot = new TimeSlot();
             }
@@ -81,32 +78,25 @@ public class TimetableServiceImpl implements TimetableService {
 
     @Override
     public List<TimeSlot> getTimeSlots(Integer tenantId, Integer classId) {
-        return timeSlotRepository
-                .findByClassIdAndTenantIdAndIsActiveTrueOrderByOrderNo(classId, tenantId);
+        return timeSlotRepository.findByClassIdAndTenantIdAndIsActiveTrueOrderByOrderNo(classId, tenantId);
     }
 
     @Override
     public TimetableResponse getTimetable(Integer tenantId, Integer classId, Integer sectionId) {
-
-        AcademicYear currentYear = academicYearRepository
-                .findByTenantIdAndIsCurrentTrue(tenantId);
+        AcademicYear currentYear = academicYearRepository.findByTenantIdAndIsCurrentTrue(tenantId);
         if (currentYear == null) {
             throw new CustomException("academicYear", "No active academic year found");
         }
 
-        List<WorkingDay> workingDays = workingDayRepository
-                .findByTenantIdAndIsActiveTrueOrderByDayOrder(tenantId);
+        List<WorkingDay> workingDays = workingDayRepository.findByTenantIdAndIsActiveTrueOrderByDayOrder(tenantId);
         List<String> dayNames = new ArrayList<>();
         for (WorkingDay wd : workingDays) {
             dayNames.add(wd.getDayName());
         }
 
-        List<TimeSlot> timeSlots = timeSlotRepository
-                .findByClassIdAndTenantIdAndIsActiveTrueOrderByOrderNo(classId, tenantId);
+        List<TimeSlot> timeSlots = timeSlotRepository.findByClassIdAndTenantIdAndIsActiveTrueOrderByOrderNo(classId, tenantId);
 
-        List<Timetable> timetables = timetableRepository
-                .findByClassIdAndSectionIdAndAcademicYearIdAndTenantId(
-                        classId, sectionId, currentYear.getAcademicYearId(), tenantId);
+        List<Timetable> timetables = timetableRepository.findByClassIdAndSectionIdAndAcademicYearIdAndTenantId(classId, sectionId, currentYear.getAcademicYearId(), tenantId);
 
         Map<String, TimetableResponse.CellData> timetableMap = new HashMap<>();
         for (Timetable tt : timetables) {
@@ -114,18 +104,15 @@ public class TimetableServiceImpl implements TimetableService {
             WorkingDay wd = workingDayRepository.findById(tt.getWorkingDayId()).orElse(null);
             if (wd == null) continue;
 
-            Subject subject = tt.getSubjectId() != null
-                    ? subjectRepository.findById(tt.getSubjectId()).orElse(null) : null;
-            Teacher teacher = tt.getTeacherId() != null
-                    ? teacherRepository.findById(tt.getTeacherId()).orElse(null) : null;
+            Subject subject = tt.getSubjectId() != null ? subjectRepository.findById(tt.getSubjectId()).orElse(null) : null;
+            Teacher teacher = tt.getTeacherId() != null ? teacherRepository.findById(tt.getTeacherId()).orElse(null) : null;
 
             TimetableResponse.CellData cell = new TimetableResponse.CellData();
             cell.setTimetableId(tt.getTimetableId());
             cell.setSubjectId(tt.getSubjectId());
             cell.setSubjectName(subject != null ? subject.getSubjectName() : null);
             cell.setTeacherId(tt.getTeacherId());
-            cell.setTeacherName(teacher != null
-                    ? teacher.getFirstName() + " " + teacher.getLastName() : null);
+            cell.setTeacherName(teacher != null ? teacher.getFirstName() + " " + teacher.getLastName() : null);
 
             timetableMap.put(tt.getTimeSlotId() + "_" + wd.getDayName(), cell);
         }
@@ -157,31 +144,20 @@ public class TimetableServiceImpl implements TimetableService {
     @Transactional
     public boolean saveTimetableCell(Integer tenantId, TimetableRequest request) {
 
-        AcademicYear currentYear = academicYearRepository
-                .findByTenantIdAndIsCurrentTrue(tenantId);
+        AcademicYear currentYear = academicYearRepository.findByTenantIdAndIsCurrentTrue(tenantId);
         if (currentYear == null) {
             throw new CustomException("academicYear", "No active academic year found");
         }
 
         if (request.getTeacherId() != null) {
-            Optional<Timetable> conflict = timetableRepository
-                    .findByTeacherIdAndWorkingDayIdAndTimeSlotIdAndAcademicYearIdAndTenantId(
-                            request.getTeacherId(), request.getWorkingDayId(),
-                            request.getTimeSlotId(), currentYear.getAcademicYearId(), tenantId);
+            Optional<Timetable> conflict = timetableRepository.findByTeacherIdAndWorkingDayIdAndTimeSlotIdAndAcademicYearIdAndTenantId(request.getTeacherId(), request.getWorkingDayId(), request.getTimeSlotId(), currentYear.getAcademicYearId(), tenantId);
 
-            if (conflict.isPresent() &&
-                    !conflict.get().getClassId().equals(request.getClassId())) {
-                throw new CustomException("teacherConflict",
-                        "Teacher is already assigned to another class at this time");
+            if (conflict.isPresent() && !conflict.get().getClassId().equals(request.getClassId())) {
+                throw new CustomException("teacherConflict", "Teacher is already assigned to another class at this time");
             }
         }
 
-        Timetable timetable = timetableRepository
-                .findByClassIdAndSectionIdAndWorkingDayIdAndTimeSlotIdAndAcademicYearIdAndTenantId(
-                        request.getClassId(), request.getSectionId(),
-                        request.getWorkingDayId(), request.getTimeSlotId(),
-                        currentYear.getAcademicYearId(), tenantId)
-                .orElse(new Timetable());
+        Timetable timetable = timetableRepository.findByClassIdAndSectionIdAndWorkingDayIdAndTimeSlotIdAndAcademicYearIdAndTenantId(request.getClassId(), request.getSectionId(), request.getWorkingDayId(), request.getTimeSlotId(), currentYear.getAcademicYearId(), tenantId).orElse(new Timetable());
 
         timetable.setTenantId(tenantId);
         timetable.setClassId(request.getClassId());
@@ -199,22 +175,18 @@ public class TimetableServiceImpl implements TimetableService {
     @Override
     public TimetableResponse getTeacherTimetable(Integer tenantId, Integer teacherId) {
 
-        AcademicYear currentYear = academicYearRepository
-                .findByTenantIdAndIsCurrentTrue(tenantId);
+        AcademicYear currentYear = academicYearRepository.findByTenantIdAndIsCurrentTrue(tenantId);
         if (currentYear == null) {
             throw new CustomException("academicYear", "No active academic year found");
         }
 
-        List<WorkingDay> workingDays = workingDayRepository
-                .findByTenantIdAndIsActiveTrueOrderByDayOrder(tenantId);
+        List<WorkingDay> workingDays = workingDayRepository.findByTenantIdAndIsActiveTrueOrderByDayOrder(tenantId);
         List<String> dayNames = new ArrayList<>();
         for (WorkingDay wd : workingDays) {
             dayNames.add(wd.getDayName());
         }
 
-        List<Timetable> timetables = timetableRepository
-                .findByTeacherIdAndAcademicYearIdAndTenantId(
-                        teacherId, currentYear.getAcademicYearId(), tenantId);
+        List<Timetable> timetables = timetableRepository.findByTeacherIdAndAcademicYearIdAndTenantId(teacherId, currentYear.getAcademicYearId(), tenantId);
 
         Map<String, TimetableResponse.CellData> timetableMap = new HashMap<>();
         Set<Integer> timeSlotIds = new LinkedHashSet<>();
@@ -222,8 +194,7 @@ public class TimetableServiceImpl implements TimetableService {
         for (Timetable tt : timetables) {
             timeSlotIds.add(tt.getTimeSlotId());
             WorkingDay wd = workingDayRepository.findById(tt.getWorkingDayId()).orElse(null);
-            Subject subject = tt.getSubjectId() != null
-                    ? subjectRepository.findById(tt.getSubjectId()).orElse(null) : null;
+            Subject subject = tt.getSubjectId() != null ? subjectRepository.findById(tt.getSubjectId()).orElse(null) : null;
 
             TimetableResponse.CellData cell = new TimetableResponse.CellData();
             cell.setTimetableId(tt.getTimetableId());

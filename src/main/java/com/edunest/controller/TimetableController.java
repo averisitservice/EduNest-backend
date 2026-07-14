@@ -23,7 +23,7 @@ public class TimetableController {
 
     @Autowired
     TimetableService timetableService;
-    
+
     @Autowired
     JwtHelper jwtHelper;
 
@@ -55,7 +55,6 @@ public class TimetableController {
     }
 
 
-    // POST /school/timetable/time-slots
     @PostMapping("/time-slots")
     public ResponseEntity<ResponseObject<Boolean>> saveTimeSlots(HttpServletRequest request, @RequestBody TimeSlotRequest timeSlotRequest) {
 

@@ -38,5 +38,9 @@ public class TimetableResponse {
         private String subjectName;
         private Integer teacherId;
         private String teacherName;
+        private Integer classId;
+        private String className;
+        private Integer sectionId;
+        private String sectionName;
     }
 }

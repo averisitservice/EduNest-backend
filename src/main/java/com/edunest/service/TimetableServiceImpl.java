@@ -150,10 +150,26 @@ public class TimetableServiceImpl implements TimetableService {
         }
 
         if (request.getTeacherId() != null) {
-            Optional<Timetable> conflict = timetableRepository.findByTeacherIdAndWorkingDayIdAndTimeSlotIdAndAcademicYearIdAndTenantId(request.getTeacherId(), request.getWorkingDayId(), request.getTimeSlotId(), currentYear.getAcademicYearId(), tenantId);
+            TimeSlot requestedSlot = timeSlotRepository.findById(request.getTimeSlotId())
+                    .orElseThrow(() -> new CustomException("timeSlot", "Time slot not found"));
 
-            if (conflict.isPresent() && !conflict.get().getClassId().equals(request.getClassId())) {
-                throw new CustomException("teacherConflict", "Teacher is already assigned to another class at this time");
+            List<Timetable> teacherEntries = timetableRepository.findByTeacherIdAndWorkingDayIdAndAcademicYearIdAndTenantId(
+                    request.getTeacherId(), request.getWorkingDayId(), currentYear.getAcademicYearId(), tenantId);
+
+            for (Timetable entry : teacherEntries) {
+                boolean sameCell = entry.getClassId().equals(request.getClassId())
+                        && Objects.equals(entry.getSectionId(), request.getSectionId())
+                        && entry.getTimeSlotId().equals(request.getTimeSlotId());
+                if (sameCell) continue;
+
+                TimeSlot existingSlot = timeSlotRepository.findById(entry.getTimeSlotId()).orElse(null);
+                if (existingSlot == null) continue;
+
+                boolean overlaps = requestedSlot.getStartTime().isBefore(existingSlot.getEndTime())
+                        && existingSlot.getStartTime().isBefore(requestedSlot.getEndTime());
+                if (overlaps) {
+                    throw new CustomException("teacherConflict", "Teacher is already assigned to another class at this time");
+                }
             }
         }
 

@@ -22,9 +22,8 @@ public interface TimetableRepository extends JpaRepository<Timetable, Integer> {
     List<Timetable> findByTeacherIdAndAcademicYearIdAndTenantId(
             Integer teacherId, Integer academicYearId, Integer tenantId);
 
-    Optional<Timetable> findByTeacherIdAndWorkingDayIdAndTimeSlotIdAndAcademicYearIdAndTenantId(
-            Integer teacherId, Integer workingDayId,
-            Integer timeSlotId, Integer academicYearId, Integer tenantId);
+    List<Timetable> findByTeacherIdAndWorkingDayIdAndAcademicYearIdAndTenantId(
+            Integer teacherId, Integer workingDayId, Integer academicYearId, Integer tenantId);
 
     @Query("SELECT t FROM Timetable t WHERE t.tenantId = :tenantId AND t.classId = :classId "
             + "AND t.workingDayId = :workingDayId AND t.timeSlotId = :timeSlotId "

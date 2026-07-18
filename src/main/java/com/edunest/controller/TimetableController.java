@@ -82,8 +82,8 @@ public class TimetableController {
     }
 
 
-    @GetMapping("/{classId}/{sectionId}")
-    public ResponseEntity<ResponseObject<TimetableResponse>> getTimetable(HttpServletRequest request, @PathVariable Integer classId, @PathVariable Integer sectionId) {
+    @GetMapping({"/{classId}/{sectionId}", "/{classId}"})
+    public ResponseEntity<ResponseObject<TimetableResponse>> getTimetable(HttpServletRequest request, @PathVariable Integer classId, @PathVariable(required = false) Integer sectionId) {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = jwtHelper.cleanToken(authHeader);

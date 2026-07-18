@@ -25,7 +25,7 @@ public class Timetable {
     @Column(name = "class_id", nullable = false)
     private Integer classId;
 
-    @Column(name = "section_id", nullable = false)
+    @Column(name = "section_id")
     private Integer sectionId;
 
     @Column(name = "working_day_id", nullable = false)

@@ -96,7 +96,7 @@ public class TimetableServiceImpl implements TimetableService {
 
         List<TimeSlot> timeSlots = timeSlotRepository.findByClassIdAndTenantIdAndIsActiveTrueOrderByOrderNo(classId, tenantId);
 
-        List<Timetable> timetables = timetableRepository.findByClassIdAndSectionIdAndAcademicYearIdAndTenantId(classId, sectionId, currentYear.getAcademicYearId(), tenantId);
+        List<Timetable> timetables = timetableRepository.findCells(classId, sectionId, currentYear.getAcademicYearId(), tenantId);
 
         Map<String, TimetableResponse.CellData> timetableMap = new HashMap<>();
         for (Timetable tt : timetables) {
@@ -157,7 +157,7 @@ public class TimetableServiceImpl implements TimetableService {
             }
         }
 
-        Timetable timetable = timetableRepository.findByClassIdAndSectionIdAndWorkingDayIdAndTimeSlotIdAndAcademicYearIdAndTenantId(request.getClassId(), request.getSectionId(), request.getWorkingDayId(), request.getTimeSlotId(), currentYear.getAcademicYearId(), tenantId).orElse(new Timetable());
+        Timetable timetable = timetableRepository.findCell(request.getClassId(), request.getSectionId(), request.getWorkingDayId(), request.getTimeSlotId(), currentYear.getAcademicYearId(), tenantId).orElse(new Timetable());
 
         timetable.setTenantId(tenantId);
         timetable.setClassId(request.getClassId());

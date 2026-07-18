@@ -51,6 +51,19 @@ public class TeacherController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/subject/{subjectId}")
+    public ResponseEntity<ResponseObject<List<TeacherListResponse>>> getTeachersBySubject(HttpServletRequest request, @PathVariable Integer subjectId) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = jwtHelper.cleanToken(authHeader);
+        Integer tenantId = jwtHelper.extractTenantId(token);
+
+        ResponseObject<List<TeacherListResponse>> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(teacherService.getTeachersBySubject(tenantId, subjectId));
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{teacherId}")
     public ResponseEntity<ResponseObject<TeacherDTO>> getTeacherById(@PathVariable Integer teacherId) {
 

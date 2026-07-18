@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface TeacherSubjectRepository extends JpaRepository<TeacherSubject, Integer> {
     List<TeacherSubject> findByTeacherIdAndTenantId(Integer teacherId, Integer tenantId);
+
+    List<TeacherSubject> findBySubjectIdAndTenantIdAndIsActiveTrue(Integer subjectId, Integer tenantId);
 }

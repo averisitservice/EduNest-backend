@@ -59,6 +59,23 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public List<TeacherListResponse> getTeachersBySubject(Integer tenantId, Integer subjectId) {
+        List<TeacherSubject> mappings = teacherSubjectRepository.findBySubjectIdAndTenantIdAndIsActiveTrue(subjectId, tenantId);
+
+        List<TeacherListResponse> result = new ArrayList<>();
+        for (TeacherSubject mapping : mappings) {
+            Teacher teacher = teacherRepository.findById(mapping.getTeacherId()).orElse(null);
+            if (teacher == null || !Boolean.TRUE.equals(teacher.getIsActive())) continue;
+
+            TeacherListResponse response = new TeacherListResponse();
+            response.setTeacherId(teacher.getTeacherId());
+            response.setTeacherName(teacher.getFirstName() + " " + teacher.getLastName());
+            result.add(response);
+        }
+        return result;
+    }
+
+    @Override
     public boolean deleteTeacher(Integer teacherId, Integer loginTeacherId) {
         Teacher teacher = teacherRepository.findById(teacherId).orElseThrow(() -> new CustomException("Teacher", "Teacher not found"));
         teacher.setIsActive(false);

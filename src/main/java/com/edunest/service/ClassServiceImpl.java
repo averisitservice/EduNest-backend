@@ -187,4 +187,16 @@ public class ClassServiceImpl implements ClassService {
         classMasterRepository.save(classMaster);
         return true;
     }
+
+    @Override
+    public List<Subject> getClassSubjects(Integer classId, Integer tenantId) {
+        List<ClassSubject> classSubjects = classSubjectRepository.findByClassIdAndTenantId(classId, tenantId);
+        List<Subject> subjects = new ArrayList<>();
+        for (ClassSubject cs : classSubjects) {
+            if (Boolean.FALSE.equals(cs.getIsActive())) continue;
+            Subject subject = subjectRepository.findById(cs.getSubjectId()).orElse(null);
+            subjects.add(subject);
+        }
+        return subjects;
+    }
 }

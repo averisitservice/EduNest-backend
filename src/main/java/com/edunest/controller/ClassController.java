@@ -4,6 +4,7 @@ import com.edunest.common.ResponseObject;
 import com.edunest.configuration.JwtHelper;
 import com.edunest.dto.classes.ClassListResponse;
 import com.edunest.dto.classes.ClassRequest;
+import com.edunest.entity.Subject;
 import com.edunest.service.ClassService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,19 @@ public class ClassController {
         ResponseObject<ClassRequest> response = new ResponseObject<>();
         response.setSuccess(true);
         response.setData(classService.getClassById(classId, tenantId));
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{classId}/subjects")
+    public ResponseEntity<ResponseObject<List<Subject>>> getClassSubjects(HttpServletRequest request, @PathVariable Integer classId) {
+
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = jwtHelper.cleanToken(authHeader);
+        Integer tenantId = jwtHelper.extractTenantId(token);
+
+        ResponseObject<List<Subject>> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(classService.getClassSubjects(classId, tenantId));
         return ResponseEntity.ok(response);
     }
 

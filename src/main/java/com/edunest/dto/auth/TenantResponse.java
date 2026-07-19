@@ -16,4 +16,5 @@ public class TenantResponse {
     private String singleLogoUrl;
     private String primaryColor;
     private String faviconUrl;
+    private Boolean isHostel;
 }

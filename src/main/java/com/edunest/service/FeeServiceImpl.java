@@ -68,6 +68,7 @@ public class FeeServiceImpl implements FeeService {
 
         ClassFee classFee = classFeeRepository.findByClassIdAndAcademicYearIdAndTenantId(classId, currentYear.getAcademicYearId(), tenantId);
         BigDecimal annualFee = classFee != null && classFee.getAnnualFee() != null ? classFee.getAnnualFee() : BigDecimal.ZERO;
+        BigDecimal hostelFee = classFee != null && classFee.getHostelFee() != null ? classFee.getHostelFee() : BigDecimal.ZERO;
 
         List<StudentClass> roster = studentClassRepository.findRoster(classId, sectionId, currentYear.getAcademicYearId(), tenantId);
 
@@ -87,15 +88,20 @@ public class FeeServiceImpl implements FeeService {
 
         List<FeeStatusResponse> result = new ArrayList<>();
         for (StudentClass sc : roster) {
+            Student student = studentRepository.findById(sc.getStudentId()).orElse(null);
+            boolean isHostel = student != null && Boolean.TRUE.equals(student.getIsHostel());
+
+            // Hostel students owe the class annual fee plus the class hostel fee.
+            BigDecimal studentAnnual = isHostel ? annualFee.add(hostelFee) : annualFee;
             BigDecimal paid = paidByStudent.getOrDefault(sc.getStudentId(), BigDecimal.ZERO);
 
             FeeStatusResponse response = new FeeStatusResponse();
             response.setStudentId(sc.getStudentId());
-            response.setStudentName(studentName(sc.getStudentId()));
+            response.setStudentName(student != null ? student.getFirstName() + " " + student.getLastName() : null);
             response.setRollNo(sc.getRollNo());
-            response.setAnnualFee(annualFee);
+            response.setAnnualFee(studentAnnual);
             response.setPaidAmount(paid);
-            response.setDueAmount(annualFee.subtract(paid));
+            response.setDueAmount(studentAnnual.subtract(paid));
             result.add(response);
         }
 

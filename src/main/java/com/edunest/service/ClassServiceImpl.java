@@ -64,6 +64,7 @@ public class ClassServiceImpl implements ClassService {
             response.setClassName(classMaster.getClassName());
             response.setIsActive(classMaster.getIsActive());
             response.setAnnualFee(classFee != null ? classFee.getAnnualFee() : null);
+            response.setHostelFee(classFee != null ? classFee.getHostelFee() : null);
             response.setSections(sectionNames);
             response.setSubjects(subjectNames);
             responseList.add(response);
@@ -97,6 +98,7 @@ public class ClassServiceImpl implements ClassService {
         ClassRequest request = new ClassRequest();
         request.setClassName(classMaster.getClassName());
         request.setAnnualFee(classFee != null ? classFee.getAnnualFee() : null);
+        request.setHostelFee(classFee != null ? classFee.getHostelFee() : null);
         request.setSections(sectionNames);
         request.setSubjectIds(subjectIds);
         return request;
@@ -174,6 +176,7 @@ public class ClassServiceImpl implements ClassService {
                 classFee.setIsActive(true);
             }
             classFee.setAnnualFee(request.getAnnualFee());
+            classFee.setHostelFee(request.getHostelFee());
             classFeeRepository.save(classFee);
         }
         return true;

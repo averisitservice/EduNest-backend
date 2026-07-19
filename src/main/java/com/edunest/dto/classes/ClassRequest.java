@@ -16,6 +16,7 @@ public class ClassRequest {
     private Integer classId;
     private String className;
     private BigDecimal annualFee;
+    private BigDecimal hostelFee;
     private List<String> sections;
     private List<Integer> subjectIds;
 }

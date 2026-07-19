@@ -60,6 +60,7 @@ public class AuthServiceImpl implements AuthService {
         response.setSingleLogoUrl(tenant.getSingleLogoUrl());
         response.setPrimaryColor(tenant.getPrimaryColor());
         response.setFaviconUrl(tenant.getFaviconUrl());
+        response.setIsHostel(tenant.getIsHostel());
 
         TeacherResponse teacherResponse = new TeacherResponse();
         teacherResponse.setTeacherId(teacher.getTeacherId());

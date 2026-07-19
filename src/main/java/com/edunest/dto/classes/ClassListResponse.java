@@ -13,6 +13,7 @@ public class ClassListResponse {
     private String       className;
     private Boolean      isActive;
     private BigDecimal   annualFee;
+    private BigDecimal   hostelFee;
     private List<String> sections;
     private List<String> subjects;
 }

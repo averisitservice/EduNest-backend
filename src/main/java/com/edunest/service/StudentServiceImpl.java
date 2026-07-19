@@ -124,6 +124,7 @@ public class StudentServiceImpl implements StudentService {
         response.setParentMobile(student.getParentMobile());
         response.setUpdatedDate(student.getUpdatedDate());
         response.setUpdatedBy(updatedByName);
+        response.setIsHostel(student.getIsHostel());
         return response;
     }
 
@@ -152,6 +153,8 @@ public class StudentServiceImpl implements StudentService {
         request.setParentMobile(student.getParentMobile());
         request.setParentEmail(student.getParentEmail());
         request.setParentAadhar(student.getParentAadhar());
+
+        request.setIsHostel(student.getIsHostel());
 
         if (studentClass != null) {
             request.setSectionId(studentClass.getSectionId());
@@ -203,6 +206,7 @@ public class StudentServiceImpl implements StudentService {
         student.setParentMobile(request.getParentMobile());
         student.setParentEmail(request.getParentEmail());
         student.setParentAadhar(request.getParentAadhar());
+        student.setIsHostel(request.getIsHostel() != null && request.getIsHostel());
         student.setUpdatedBy(loginTeacherId);
         student.setUpdatedDate(LocalDateTime.now());
 

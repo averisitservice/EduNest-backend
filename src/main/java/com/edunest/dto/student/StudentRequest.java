@@ -32,4 +32,5 @@ public class StudentRequest {
     private Integer classId;
     private Integer sectionId;
     private String rollNo;
+    private Boolean isHostel;
 }

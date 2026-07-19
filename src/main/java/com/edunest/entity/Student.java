@@ -92,6 +92,9 @@ public class Student {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
+    @Column(name = "is_hostel")
+    private Boolean isHostel = false;
+
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 

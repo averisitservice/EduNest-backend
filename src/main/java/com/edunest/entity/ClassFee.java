@@ -31,6 +31,9 @@ public class ClassFee {
     @Column(name = "annual_fee", nullable = false, precision = 10, scale = 2)
     private BigDecimal annualFee;
 
+    @Column(name = "hostel_fee", precision = 10, scale = 2)
+    private BigDecimal hostelFee;
+
     @Column(name = "is_active")
     @Builder.Default
     private Boolean isActive = true;

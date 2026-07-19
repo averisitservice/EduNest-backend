@@ -27,4 +27,5 @@ public class StudentListResponse {
     private String parentMobile;
     private LocalDateTime updatedDate;
     private String updatedBy;
+    private Boolean isHostel;
 }

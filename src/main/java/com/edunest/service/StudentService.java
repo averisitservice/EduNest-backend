@@ -1,13 +1,14 @@
 package com.edunest.service;
 
 
+import com.edunest.common.PagedResponse;
 import com.edunest.dto.student.StudentListResponse;
 import com.edunest.dto.student.StudentRequest;
 
-import java.util.List;
-
 public interface StudentService {
-    List<StudentListResponse> getStudentList(Integer tenantId);
+    PagedResponse<StudentListResponse> getStudentList(
+            Integer tenantId, int page, int size, String search,
+            Integer classId, Integer sectionId, String sortBy, String sortDir);
 
     StudentRequest getStudentById(Integer studentId, Integer tenantId);
 

@@ -1,6 +1,7 @@
 package com.edunest.service;
 
 
+import com.edunest.common.PagedResponse;
 import com.edunest.dto.student.StudentListResponse;
 import com.edunest.dto.student.StudentRequest;
 import com.edunest.entity.*;
@@ -8,6 +9,10 @@ import com.edunest.error.CustomException;
 import com.edunest.helper.CryptoHelper;
 import com.edunest.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,59 +43,88 @@ public class StudentServiceImpl implements StudentService {
     TeacherRepository teacherRepository;
 
     @Override
-    public List<StudentListResponse> getStudentList(Integer tenantId) {
-        List<Student> students = studentRepository.findByTenantIdAndIsActiveTrue(tenantId);
-        List<StudentListResponse> responseList = new ArrayList<>();
+    public PagedResponse<StudentListResponse> getStudentList(
+            Integer tenantId, int page, int size, String search,
+            Integer classId, Integer sectionId, String sortBy, String sortDir) {
 
-        for (Student student : students) {
-            StudentClass studentClass = studentClassRepository.findByStudentIdAndTenantId(student.getStudentId(), tenantId).orElse(null);
+        String normalizedSearch = (search != null && !search.isBlank()) ? search.trim().toLowerCase() : "";
 
-            String className = null;
-            String sectionName = null;
-            String displayClass = null;
-            String rollNo = null;
+        Sort.Direction direction = "asc".equalsIgnoreCase(sortDir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String sortProperty = mapSortProperty(sortBy);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortProperty));
 
-            if (studentClass != null) {
-                ClassMaster classMaster = classMasterRepository.findById(studentClass.getClassId()).orElse(null);
-                ClassSection classSection = null;
-                if (studentClass.getSectionId() != null) {
-                    classSection = classSectionRepository.findById(studentClass.getSectionId()).orElse(null);
-                }
-                className = classMaster != null ? classMaster.getClassName() : null;
-                sectionName = classSection != null ? classSection.getSectionName() : null;
-                displayClass = (className != null && sectionName != null) ? className + " - " + sectionName : className;
-                rollNo = studentClass.getRollNo();
-            }
+        Page<Student> studentPage = studentRepository.searchStudents(tenantId, normalizedSearch, classId, sectionId, pageable);
 
-            String updatedByName = null;
-            if (student.getUpdatedBy() != null) {
-                Teacher updatedByTeacher = teacherRepository.findById(student.getUpdatedBy()).orElse(null);
-                if (updatedByTeacher != null) {
-                    updatedByName = updatedByTeacher.getTeacherName();
-                }
-            }
-
-            StudentListResponse response = new StudentListResponse();
-            response.setStudentId(student.getStudentId());
-            response.setAdmissionNo(student.getAdmissionNo());
-            response.setStudentName(student.getFirstName() + " " + student.getLastName());
-            response.setGender(student.getGender());
-            response.setDateOfBirth(student.getDateOfBirth());
-            response.setMobileNo(student.getMobileNo());
-            response.setEmail(student.getEmail());
-            response.setClassName(className);
-            response.setSectionName(sectionName);
-            response.setDisplayClass(displayClass);
-            response.setRollNo(rollNo);
-            response.setIsActive(student.getIsActive());
-            response.setLastLogin(student.getLastLogin());
-            response.setFatherName(student.getFatherName());
-            response.setParentMobile(student.getParentMobile());
-            response.setUpdatedDate(student.getUpdatedDate());
-            response.setUpdatedBy(updatedByName);
-            responseList.add(response);
+        List<StudentListResponse> content = new ArrayList<>();
+        for (Student student : studentPage.getContent()) {
+            content.add(toResponse(student, tenantId));
         }
-        return responseList;
+
+        return new PagedResponse<>(
+                content,
+                studentPage.getTotalElements(),
+                studentPage.getTotalPages(),
+                studentPage.getNumber(),
+                studentPage.getSize());
+    }
+
+    private String mapSortProperty(String sortBy) {
+        if (sortBy == null) return "updatedDate";
+        return switch (sortBy) {
+            case "studentName" -> "firstName";
+            case "mobileNo" -> "mobileNo";
+            case "updatedDate" -> "updatedDate";
+            default -> "updatedDate";
+        };
+    }
+
+    private StudentListResponse toResponse(Student student, Integer tenantId) {
+        StudentClass studentClass = studentClassRepository.findByStudentIdAndTenantId(student.getStudentId(), tenantId).orElse(null);
+
+        String className = null;
+        String sectionName = null;
+        String displayClass = null;
+        String rollNo = null;
+
+        if (studentClass != null) {
+            ClassMaster classMaster = classMasterRepository.findById(studentClass.getClassId()).orElse(null);
+            ClassSection classSection = null;
+            if (studentClass.getSectionId() != null) {
+                classSection = classSectionRepository.findById(studentClass.getSectionId()).orElse(null);
+            }
+            className = classMaster != null ? classMaster.getClassName() : null;
+            sectionName = classSection != null ? classSection.getSectionName() : null;
+            displayClass = (className != null && sectionName != null) ? className + " - " + sectionName : className;
+            rollNo = studentClass.getRollNo();
+        }
+
+        String updatedByName = null;
+        if (student.getUpdatedBy() != null) {
+            Teacher updatedByTeacher = teacherRepository.findById(student.getUpdatedBy()).orElse(null);
+            if (updatedByTeacher != null) {
+                updatedByName = updatedByTeacher.getTeacherName();
+            }
+        }
+
+        StudentListResponse response = new StudentListResponse();
+        response.setStudentId(student.getStudentId());
+        response.setAdmissionNo(student.getAdmissionNo());
+        response.setStudentName(student.getFirstName() + " " + student.getLastName());
+        response.setGender(student.getGender());
+        response.setDateOfBirth(student.getDateOfBirth());
+        response.setMobileNo(student.getMobileNo());
+        response.setEmail(student.getEmail());
+        response.setClassName(className);
+        response.setSectionName(sectionName);
+        response.setDisplayClass(displayClass);
+        response.setRollNo(rollNo);
+        response.setIsActive(student.getIsActive());
+        response.setLastLogin(student.getLastLogin());
+        response.setFatherName(student.getFatherName());
+        response.setParentMobile(student.getParentMobile());
+        response.setUpdatedDate(student.getUpdatedDate());
+        response.setUpdatedBy(updatedByName);
+        return response;
     }
 
     @Override

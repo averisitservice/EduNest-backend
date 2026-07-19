@@ -1,6 +1,8 @@
 package com.edunest.repository;
 
 import com.edunest.entity.Student;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +15,36 @@ import java.util.Optional;
 public interface StudentRepository extends JpaRepository<Student, Integer> {
 
     List<Student> findByTenantIdAndIsActiveTrue(Integer tenantId);
+
+    @Query(value = "SELECT DISTINCT s FROM Student s "
+            + "LEFT JOIN StudentClass sc ON sc.studentId = s.studentId AND sc.tenantId = :tenantId "
+            + "WHERE s.tenantId = :tenantId AND s.isActive = true "
+            + "AND (:classId IS NULL OR sc.classId = :classId) "
+            + "AND (:sectionId IS NULL OR sc.sectionId = :sectionId) "
+            + "AND (:search = '' "
+            + "  OR LOWER(CONCAT(s.firstName, ' ', s.lastName)) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(s.admissionNo) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(s.email) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(s.mobileNo) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(s.fatherName) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(s.parentMobile) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(sc.rollNo) LIKE CONCAT('%', :search, '%'))",
+            countQuery = "SELECT COUNT(DISTINCT s) FROM Student s "
+            + "LEFT JOIN StudentClass sc ON sc.studentId = s.studentId AND sc.tenantId = :tenantId "
+            + "WHERE s.tenantId = :tenantId AND s.isActive = true "
+            + "AND (:classId IS NULL OR sc.classId = :classId) "
+            + "AND (:sectionId IS NULL OR sc.sectionId = :sectionId) "
+            + "AND (:search = '' "
+            + "  OR LOWER(CONCAT(s.firstName, ' ', s.lastName)) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(s.admissionNo) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(s.email) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(s.mobileNo) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(s.fatherName) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(s.parentMobile) LIKE CONCAT('%', :search, '%') "
+            + "  OR LOWER(sc.rollNo) LIKE CONCAT('%', :search, '%'))")
+    Page<Student> searchStudents(
+            @Param("tenantId") Integer tenantId, @Param("search") String search,
+            @Param("classId") Integer classId, @Param("sectionId") Integer sectionId, Pageable pageable);
 
     Optional<Student> findByEmail(String email);
 

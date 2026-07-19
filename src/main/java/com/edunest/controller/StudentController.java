@@ -1,5 +1,6 @@
 package com.edunest.controller;
 
+import com.edunest.common.PagedResponse;
 import com.edunest.common.ResponseObject;
 import com.edunest.configuration.JwtHelper;
 import com.edunest.dto.student.StudentListResponse;
@@ -24,15 +25,23 @@ public class StudentController {
     JwtHelper jwtHelper;
 
     @GetMapping("/list")
-    public ResponseEntity<ResponseObject<List<StudentListResponse>>> getStudentList(HttpServletRequest request) {
+    public ResponseEntity<ResponseObject<PagedResponse<StudentListResponse>>> getStudentList(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Integer classId,
+            @RequestParam(required = false) Integer sectionId,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDir) {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String token = jwtHelper.cleanToken(authHeader);
         Integer tenantId = jwtHelper.extractTenantId(token);
 
-        ResponseObject<List<StudentListResponse>> response = new ResponseObject<>();
+        ResponseObject<PagedResponse<StudentListResponse>> response = new ResponseObject<>();
         response.setSuccess(true);
-        response.setData(studentService.getStudentList(tenantId));
+        response.setData(studentService.getStudentList(tenantId, page, size, search, classId, sectionId, sortBy, sortDir));
         return ResponseEntity.ok(response);
     }
 

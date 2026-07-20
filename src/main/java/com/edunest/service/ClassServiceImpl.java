@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ClassServiceImpl implements ClassService {
@@ -23,6 +25,9 @@ public class ClassServiceImpl implements ClassService {
 
     @Autowired
     ClassSubjectRepository classSubjectRepository;
+
+    @Autowired
+    StudentClassRepository studentClassRepository;
 
     @Autowired
     ClassFeeRepository classFeeRepository;
@@ -133,19 +138,36 @@ public class ClassServiceImpl implements ClassService {
         ClassMaster savedClass = classMasterRepository.save(classMaster);
         Integer savedClassId = savedClass.getClassId();
 
-        if (isEdit) {
-            List<ClassSection> oldSections = classSectionRepository.findByClassIdAndTenantId(savedClassId, tenantId);
-            classSectionRepository.deleteAll(oldSections);
+        List<ClassSection> existingSections = classSectionRepository.findByClassIdAndTenantId(savedClassId, tenantId);
+
+        List<String> requestedNames = new ArrayList<>();
+        if (request.getSections() != null) {
+            for (String name : request.getSections()) {
+                if (name != null && !name.trim().isEmpty()) {
+                    requestedNames.add(name.trim());
+                }
+            }
         }
 
-        if (request.getSections() != null && !request.getSections().isEmpty()) {
-            for (String sectionName : request.getSections()) {
+        Set<String> requestedSet = new HashSet<>(requestedNames);
+        Set<String> existingNames = new HashSet<>();
+        for (ClassSection cs : existingSections) {
+            existingNames.add(cs.getSectionName().trim());
+            if (!requestedSet.contains(cs.getSectionName().trim())) {
+                boolean hasStudents = studentClassRepository.existsBySectionIdAndTenantId(cs.getSectionId(), tenantId);
+                if (!hasStudents) {
+                    classSectionRepository.delete(cs);
+                }
+            }
+        }
+
+        for (String name : requestedNames) {
+            if (!existingNames.contains(name)) {
                 ClassSection classSection = new ClassSection();
                 classSection.setTenantId(tenantId);
                 classSection.setClassId(savedClassId);
-                classSection.setSectionName(sectionName);
+                classSection.setSectionName(name);
                 classSection.setIsActive(true);
-
                 classSectionRepository.save(classSection);
             }
         }

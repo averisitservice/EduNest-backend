@@ -14,6 +14,8 @@ public interface StudentClassRepository extends JpaRepository<StudentClass, Inte
 
     Optional<StudentClass> findByStudentIdAndTenantId(Integer studentId, Integer tenantId);
 
+    boolean existsBySectionIdAndTenantId(Integer sectionId, Integer tenantId);
+
     List<StudentClass> findByClassIdAndSectionIdAndAcademicYearIdAndTenantId(
             Integer classId, Integer sectionId,
             Integer academicYearId, Integer tenantId);

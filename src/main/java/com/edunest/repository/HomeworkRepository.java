@@ -1,0 +1,23 @@
+package com.edunest.repository;
+
+import com.edunest.entity.Homework;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface HomeworkRepository extends JpaRepository<Homework, Integer> {
+
+    // Null-safe on sectionId; pass type = "" to ignore the type filter.
+    @Query("SELECT h FROM Homework h WHERE h.tenantId = :tenantId AND h.academicYearId = :academicYearId "
+            + "AND h.isActive = true AND h.classId = :classId "
+            + "AND ((:sectionId IS NULL AND h.sectionId IS NULL) OR h.sectionId = :sectionId) "
+            + "AND (:type = '' OR h.type = :type) "
+            + "ORDER BY h.homeworkId DESC")
+    List<Homework> findList(
+            @Param("tenantId") Integer tenantId, @Param("academicYearId") Integer academicYearId,
+            @Param("classId") Integer classId, @Param("sectionId") Integer sectionId, @Param("type") String type);
+}

@@ -112,6 +112,29 @@ public class AuthServiceImpl implements AuthService {
         log.info("Password reset for teacherId {}", teacher.getTeacherId());
     }
 
+    @Override
+    public void resetPassword(Integer teacherId, ResetPasswordRequest request) {
+
+        Teacher teacher = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new CustomException("Teacher", "Teacher not found"));
+
+        String encryptedOldPassword = CryptoHelper.encryptPassword(request.getOldPassword(), teacher.getHashkey());
+        if (!encryptedOldPassword.equals(teacher.getPassword())) {
+            throw new CustomException("oldPassword", "Old password is incorrect");
+        }
+
+        if (request.getNewPassword() == null || request.getNewPassword().trim().length() < 8) {
+            throw new CustomException("newPassword", "New password must be at least 8 characters");
+        }
+
+        String hashKey = CryptoHelper.getHashKey();
+        teacher.setHashkey(hashKey);
+        teacher.setPassword(CryptoHelper.encryptPassword(request.getNewPassword(), hashKey));
+        teacherRepository.save(teacher);
+
+        log.info("Password changed for teacherId {}", teacher.getTeacherId());
+    }
+
     public RenewSessionResponse renewSession(RenewSessionRequest request) {
 
         Teacher teacher = teacherRepository.findById(request.getTeacherId())

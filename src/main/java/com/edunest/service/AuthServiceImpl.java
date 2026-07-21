@@ -10,6 +10,7 @@ import com.edunest.helper.CryptoHelper;
 import com.edunest.repository.TeacherRepository;
 import com.edunest.repository.TenantRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     JwtHelper jwtHelper;
+
+    @Autowired
+    EmailService emailService;
 
 
     @Override
@@ -76,6 +80,36 @@ public class AuthServiceImpl implements AuthService {
         loginResponse.setTenant(response);
 
         return loginResponse;
+    }
+
+    @Override
+    public void forgotPassword(ForgotPasswordRequest request) {
+
+        Teacher teacher = teacherRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException("Teacher", "No account found with this email"));
+
+        if (!teacher.getIsActive()) {
+            throw new CustomException("Teacher", "Account is inactive. Please contact admin");
+        }
+
+        RandomStringGenerator generator = new RandomStringGenerator.Builder()
+                .withinRange('0', 'z')
+                .filteredBy(Character::isLetterOrDigit)
+                .build();
+
+        String newPassword = generator.generate(8);
+
+        String hashKey = CryptoHelper.getHashKey();
+
+        teacher.setHashkey(hashKey);
+        teacher.setPassword(CryptoHelper.encryptPassword(newPassword, hashKey));
+        teacherRepository.save(teacher);
+
+        String teacherName = (teacher.getFirstName() != null ? teacher.getFirstName() : "") +
+                (teacher.getLastName() != null ? " " + teacher.getLastName() : "");
+        emailService.sendPasswordResetEmail(teacher.getEmail(), teacherName.trim(), newPassword);
+
+        log.info("Password reset for teacherId {}", teacher.getTeacherId());
     }
 
     public RenewSessionResponse renewSession(RenewSessionRequest request) {

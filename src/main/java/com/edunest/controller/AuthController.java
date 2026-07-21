@@ -1,6 +1,7 @@
 package com.edunest.controller;
 
 import com.edunest.common.ResponseObject;
+import com.edunest.dto.auth.ForgotPasswordRequest;
 import com.edunest.dto.auth.LoginRequest;
 import com.edunest.dto.auth.LoginResponse;
 import com.edunest.dto.auth.RenewSessionRequest;
@@ -25,6 +26,17 @@ public class AuthController {
         ResponseObject<LoginResponse> response = new ResponseObject<>();
         response.setSuccess(true);
         response.setData(authService.login(loginRequest));
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseObject<String>> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request);
+
+        ResponseObject<String> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData("A new password has been sent to your registered email address.");
 
         return ResponseEntity.ok(response);
     }

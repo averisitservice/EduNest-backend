@@ -6,8 +6,11 @@ import com.edunest.dto.auth.LoginResponse;
 import com.edunest.dto.auth.RenewSessionRequest;
 import com.edunest.dto.auth.RenewSessionResponse;
 import com.edunest.dto.auth.ResetPasswordRequest;
+import com.edunest.dto.auth.SchoolLookupResponse;
 
 public interface AuthService {
+    SchoolLookupResponse getTenantBySchoolCode(String schoolCode);
+
     LoginResponse login(LoginRequest loginRequest);
 
     RenewSessionResponse renewSession(RenewSessionRequest request);

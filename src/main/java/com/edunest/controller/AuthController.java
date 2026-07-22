@@ -8,11 +8,14 @@ import com.edunest.dto.auth.LoginResponse;
 import com.edunest.dto.auth.RenewSessionRequest;
 import com.edunest.dto.auth.RenewSessionResponse;
 import com.edunest.dto.auth.ResetPasswordRequest;
+import com.edunest.dto.auth.SchoolLookupResponse;
 import com.edunest.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +30,15 @@ public class AuthController {
 
     @Autowired
     JwtHelper jwtHelper;
+
+    @GetMapping("/tenant/{schoolCode}")
+    public ResponseEntity<ResponseObject<SchoolLookupResponse>> getTenantBySchoolCode(@PathVariable String schoolCode) {
+        ResponseObject<SchoolLookupResponse> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData(authService.getTenantBySchoolCode(schoolCode));
+
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/login")
     public ResponseEntity<ResponseObject<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {

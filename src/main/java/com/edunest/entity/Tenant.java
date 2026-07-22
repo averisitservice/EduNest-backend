@@ -27,6 +27,12 @@ public class Tenant {
     @Column(name = "tenant_name", nullable = false, length = 100)
     private String tenantName;
 
+    @Column(name = "school_code", length = 30)
+    private String schoolCode;
+
+    @Column(name = "school_banner_url", length = 255)
+    private String schoolBannerUrl;
+
     @Column(name = "domain_name", nullable = false, length = 150)
     private String domainName;
 

@@ -34,6 +34,32 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
+    public SchoolLookupResponse getTenantBySchoolCode(String schoolCode) {
+
+        if (schoolCode == null || schoolCode.trim().isEmpty()) {
+            throw new CustomException("schoolCode", "Please enter a school code");
+        }
+
+        Tenant tenant = tenantRepository.findBySchoolCodeIgnoreCaseAndIsActiveTrue(schoolCode.trim())
+                .orElseThrow(() -> new CustomException("schoolCode", "Invalid school code"));
+
+        SchoolLookupResponse response = new SchoolLookupResponse();
+        response.setTenantId(tenant.getTenantId());
+        response.setSchoolCode(tenant.getSchoolCode());
+        response.setTenantName(tenant.getTenantName());
+        response.setSchoolBannerUrl(tenant.getSchoolBannerUrl());
+        response.setLogoUrl(tenant.getLogoUrl());
+        response.setSingleLogoUrl(tenant.getSingleLogoUrl());
+        response.setPrimaryColor(tenant.getPrimaryColor());
+        response.setFaviconUrl(tenant.getFaviconUrl());
+        response.setCity(tenant.getCity());
+        response.setState(tenant.getState());
+        response.setIsHostel(tenant.getIsHostel());
+
+        return response;
+    }
+
+    @Override
     public LoginResponse login(LoginRequest loginRequest) {
 
         Teacher teacher = teacherRepository.findByEmail(loginRequest.getEmail()).

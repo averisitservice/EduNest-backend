@@ -14,6 +14,7 @@ public class SchoolLookupResponse {
     private String schoolCode;
     private String tenantName;
     private String schoolBannerUrl;
+    private String mobileLogoUrl;
     private String logoUrl;
     private String singleLogoUrl;
     private String primaryColor;

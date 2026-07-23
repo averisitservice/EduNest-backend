@@ -33,6 +33,9 @@ public class Tenant {
     @Column(name = "school_banner_url", length = 255)
     private String schoolBannerUrl;
 
+    @Column(name = "mobile_logo_url", length = 255)
+    private String mobileLogoUrl;
+
     @Column(name = "domain_name", nullable = false, length = 150)
     private String domainName;
 

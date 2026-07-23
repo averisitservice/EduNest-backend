@@ -1,5 +1,6 @@
 package com.edunest.configuration;
 
+import com.edunest.entity.Student;
 import com.edunest.entity.Teacher;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -66,6 +67,56 @@ public class JwtHelper {
                 .expiration(expiry)
                 .signWith(signingKey(), SignatureAlgorithm.HS512)
                 .compact();
+    }
+
+    // ---- Student tokens (mobile app) ----
+
+    public String generateStudentAccessToken(Student student) {
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + accessTokenExpiration * 1000);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("studentId", student.getStudentId());
+        claims.put("tenantId", student.getTenantId());
+        claims.put("userType", "STUDENT");
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(student.getUsername())
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(signingKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    public String generateStudentRefreshToken(Student student) {
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + refreshTokenExpiration * 1000);
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("studentId", student.getStudentId());
+        claims.put("tenantId", student.getTenantId());
+        claims.put("userType", "STUDENT");
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(student.getUsername())
+                .issuedAt(now)
+                .expiration(expiry)
+                .signWith(signingKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    public Integer extractStudentId(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(signingKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+
+        return claims.get("studentId", Integer.class);
     }
 
     public String renewSessionJwt(Teacher teacher, String refreshToken) {

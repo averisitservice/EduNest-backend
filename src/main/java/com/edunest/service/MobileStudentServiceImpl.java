@@ -126,8 +126,6 @@ public class MobileStudentServiceImpl implements MobileStudentService {
         return name.isEmpty() ? teacher.getTeacherName() : name;
     }
 
-    /// Joins the address parts into one Indian-format line, skipping blanks:
-    /// "Block A, Sahyadri Apartments, Pune, Maharashtra - 411001"
     private String buildFullAddress(Student student) {
         List<String> parts = new ArrayList<>();
 

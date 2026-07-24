@@ -30,11 +30,23 @@ public class Tenant {
     @Column(name = "school_code", length = 30)
     private String schoolCode;
 
+    @Column(name = "primary_color", nullable = false, length = 100)
+    private String primaryColor;
+
     @Column(name = "school_banner_url", length = 255)
     private String schoolBannerUrl;
 
     @Column(name = "mobile_logo_url", length = 255)
     private String mobileLogoUrl;
+
+    @Column(name = "logo_url", nullable = false, length = 255)
+    private String logoUrl;
+
+    @Column(name = "favicon_url", length = 100)
+    private String faviconUrl;
+
+    @Column(name = "single_logo_url", nullable = false, length = 255)
+    private String singleLogoUrl;
 
     @Column(name = "domain_name", nullable = false, length = 150)
     private String domainName;
@@ -63,12 +75,6 @@ public class Tenant {
     @Column(name = "postal_code", nullable = false, length = 15)
     private String postalCode;
 
-    @Column(name = "logo_url", nullable = false, length = 255)
-    private String logoUrl;
-
-    @Column(name = "subscription_expiry", nullable = false)
-    private LocalDateTime subscriptionExpiry;
-
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 
@@ -87,16 +93,4 @@ public class Tenant {
 
     @Column(name = "updated_by", nullable = false)
     private Integer updatedBy;
-
-    @Column(name = "single_logo_url", nullable = false, length = 255)
-    private String singleLogoUrl;
-
-    @Column(name = "primary_color", nullable = false, length = 100)
-    private String primaryColor;
-
-    @Column(name = "favicon_url", length = 100)
-    private String faviconUrl;
-
-    @Column(name = "post_secret", length = 30)
-    private String postSecret;
 }

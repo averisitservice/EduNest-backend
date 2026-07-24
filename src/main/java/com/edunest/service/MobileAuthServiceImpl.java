@@ -2,9 +2,11 @@ package com.edunest.service;
 
 import com.edunest.configuration.JwtHelper;
 import com.edunest.dto.auth.TenantResponse;
+import com.edunest.dto.mobile.StudentForgotPasswordRequest;
 import com.edunest.dto.mobile.StudentLoginRequest;
 import com.edunest.dto.mobile.StudentLoginResponse;
 import com.edunest.dto.mobile.StudentProfileResponse;
+import com.edunest.dto.mobile.StudentResetCredential;
 import com.edunest.entity.Student;
 import com.edunest.entity.Tenant;
 import com.edunest.error.CustomException;
@@ -12,10 +14,14 @@ import com.edunest.helper.CryptoHelper;
 import com.edunest.repository.StudentRepository;
 import com.edunest.repository.TenantRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -29,6 +35,9 @@ public class MobileAuthServiceImpl implements MobileAuthService {
 
     @Autowired
     JwtHelper jwtHelper;
+
+    @Autowired
+    EmailService emailService;
 
     @Override
     public StudentLoginResponse studentLogin(StudentLoginRequest request) {
@@ -82,6 +91,41 @@ public class MobileAuthServiceImpl implements MobileAuthService {
         log.info("Student {} logged in from mobile", student.getStudentId());
 
         return new StudentLoginResponse(session, refresh, profile, tenantResponse);
+    }
+
+    @Override
+    @Transactional
+    public void forgotPassword(StudentForgotPasswordRequest request) {
+
+        String email = request.getEmail().trim();
+
+        List<Student> students = studentRepository.findByEmailIgnoreCaseAndIsActiveTrue(email);
+        if (students.isEmpty()) {
+            throw new CustomException("email", "No account found with this email");
+        }
+
+        RandomStringGenerator generator = new RandomStringGenerator.Builder()
+                .withinRange('0', 'z')
+                .filteredBy(Character::isLetterOrDigit)
+                .build();
+
+        List<StudentResetCredential> accounts = new ArrayList<>();
+
+        for (Student student : students) {
+            String newPassword = generator.generate(8);
+            String hashKey = CryptoHelper.getHashKey();
+
+            student.setHashkey(hashKey);
+            student.setPassword(CryptoHelper.encryptPassword(newPassword, hashKey));
+            studentRepository.save(student);
+
+            accounts.add(new StudentResetCredential(
+                    buildStudentName(student), student.getUsername(), newPassword));
+        }
+
+        emailService.sendStudentPasswordResetEmail(email, accounts);
+
+        log.info("Password reset for {} student account(s) on email {}", accounts.size(), email);
     }
 
     private String buildStudentName(Student student) {

@@ -182,9 +182,14 @@ public class StudentServiceImpl implements StudentService {
             student = new Student();
             student.setTenantId(tenantId);
             student.setAdmissionNo(generateAdmissionNo(tenantId));
-            student.setHashkey(CryptoHelper.getHashKey());
+            String hashKey = CryptoHelper.getHashKey();
+            String initialPassword = (request.getPassword() != null && !request.getPassword().isBlank())
+                    ? request.getPassword()
+                    : request.getMobileNo();
+
+            student.setHashkey(hashKey);
             student.setUsername(generateUsername(request.getFirstName(), request.getDateOfBirth()));
-            student.setPassword(CryptoHelper.encryptPassword(request.getMobileNo(), CryptoHelper.getHashKey()));
+            student.setPassword(CryptoHelper.encryptPassword(initialPassword, hashKey));
             student.setIsActive(true);
             student.setCreatedBy(loginTeacherId);
         }

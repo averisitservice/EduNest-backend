@@ -1,6 +1,7 @@
 package com.edunest.controller;
 
 import com.edunest.common.ResponseObject;
+import com.edunest.dto.mobile.StudentForgotPasswordRequest;
 import com.edunest.dto.mobile.StudentLoginRequest;
 import com.edunest.dto.mobile.StudentLoginResponse;
 import com.edunest.service.MobileAuthService;
@@ -25,6 +26,19 @@ public class MobileAuthController {
         ResponseObject<StudentLoginResponse> response = new ResponseObject<>();
         response.setSuccess(true);
         response.setData(mobileAuthService.studentLogin(request));
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseObject<String>> forgotPassword(
+            @RequestBody StudentForgotPasswordRequest request) {
+
+        mobileAuthService.forgotPassword(request);
+
+        ResponseObject<String> response = new ResponseObject<>();
+        response.setSuccess(true);
+        response.setData("A new password has been sent to your registered email address.");
 
         return ResponseEntity.ok(response);
     }

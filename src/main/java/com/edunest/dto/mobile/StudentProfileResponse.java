@@ -18,4 +18,12 @@ public class StudentProfileResponse {
     private String mobileNo;
     private String photoUrl;
     private Boolean isHostel;
+
+    // Current class placement
+    private Integer classId;
+    private String className;
+    private Integer sectionId;
+    private String sectionName;
+    private String displayClass;
+    private String rollNo;
 }

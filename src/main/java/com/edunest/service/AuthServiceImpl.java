@@ -139,7 +139,6 @@ public class AuthServiceImpl implements AuthService {
                 (teacher.getLastName() != null ? " " + teacher.getLastName() : "");
         emailService.sendPasswordResetEmail(teacher.getEmail(), teacherName.trim(), newPassword);
 
-        log.info("Password reset for teacherId {}", teacher.getTeacherId());
     }
 
     @Override
@@ -162,7 +161,6 @@ public class AuthServiceImpl implements AuthService {
         teacher.setPassword(CryptoHelper.encryptPassword(request.getNewPassword(), hashKey));
         teacherRepository.save(teacher);
 
-        log.info("Password changed for teacherId {}", teacher.getTeacherId());
     }
 
     public RenewSessionResponse renewSession(RenewSessionRequest request) {

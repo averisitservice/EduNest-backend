@@ -85,7 +85,10 @@ public class AuthServiceImpl implements AuthService {
 
         TenantResponse response = new TenantResponse();
         response.setTenantId(tenant.getTenantId());
+        response.setSchoolCode(tenant.getSchoolCode());
         response.setFaviconUrl(tenant.getFaviconUrl());
+        response.setSchoolBannerUrl(tenant.getSchoolBannerUrl());
+        response.setMobileLogoUrl(tenant.getMobileLogoUrl());
         response.setLogoUrl(tenant.getLogoUrl());
         response.setTenantName(tenant.getTenantName());
         response.setSingleLogoUrl(tenant.getSingleLogoUrl());

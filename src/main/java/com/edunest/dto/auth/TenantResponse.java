@@ -11,7 +11,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TenantResponse {
     private Integer tenantId;
+    private String schoolCode;
     private String tenantName;
+    private String schoolBannerUrl;
+    private String mobileLogoUrl;
     private String logoUrl;
     private String singleLogoUrl;
     private String primaryColor;

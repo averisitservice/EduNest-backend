@@ -11,9 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Student-facing mobile API. Everything the mobile app calls lives under /api.
- */
 @RestController
 @RequestMapping("/api/auth")
 public class MobileAuthController {

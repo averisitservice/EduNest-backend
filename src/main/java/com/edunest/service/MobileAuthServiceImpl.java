@@ -131,9 +131,6 @@ public class MobileAuthServiceImpl implements MobileAuthService {
     private String buildStudentName(Student student) {
         StringBuilder name = new StringBuilder();
         if (student.getFirstName() != null) name.append(student.getFirstName());
-        if (student.getMiddleName() != null && !student.getMiddleName().isBlank()) {
-            name.append(" ").append(student.getMiddleName());
-        }
         if (student.getLastName() != null) name.append(" ").append(student.getLastName());
         return name.toString().trim();
     }

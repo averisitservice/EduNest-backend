@@ -12,4 +12,6 @@ public interface TeacherRepository extends JpaRepository<Teacher, Integer> {
     Optional<Teacher> findByEmail(String email);
 
     List<Teacher> findByTenantIdAndIsActiveTrueAndTeacherIdNot(Integer tenantId, Integer teacherId);
+
+    long countByTenantIdAndIsActiveTrue(Integer tenantId);
 }

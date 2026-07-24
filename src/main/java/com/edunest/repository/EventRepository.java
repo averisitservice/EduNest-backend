@@ -15,4 +15,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
     List<Event> findByTenantIdAndAcademicYearIdAndIsActiveTrueAndStartDateBetweenOrderByStartDateAscEventIdAsc(
             Integer tenantId, Integer academicYearId, LocalDate fromDate, LocalDate toDate);
+
+    List<Event> findTop5ByTenantIdAndAcademicYearIdAndIsActiveTrueAndStartDateGreaterThanEqualOrderByStartDateAscEventIdAsc(
+            Integer tenantId, Integer academicYearId, LocalDate fromDate);
 }

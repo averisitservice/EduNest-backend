@@ -9,4 +9,6 @@ public interface ClassMasterRepository extends JpaRepository<ClassMaster, Intege
     List<ClassMaster> findByTenantIdAndIsActiveTrue(Integer tenantId);
 
     boolean existsByClassNameAndTenantId(String className, Integer tenantId);
+
+    long countByTenantIdAndIsActiveTrue(Integer tenantId);
 }

@@ -50,6 +50,8 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
     Optional<Student> findByUsernameIgnoreCase(String username);
 
+    long countByTenantIdAndIsActiveTrue(Integer tenantId);
+
     Optional<Student> findByAdmissionNoAndTenantId(String admissionNo, Integer tenantId);
 
     @Query(value = """

@@ -19,4 +19,10 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Integer>
 
     List<Attendance> findByTenantIdAndAcademicYearIdAndAttendanceDateBetweenAndStudentIdIn(
             Integer tenantId, Integer academicYearId, LocalDate fromDate, LocalDate toDate, List<Integer> studentIds);
+
+    long countByTenantIdAndAcademicYearIdAndAttendanceDate(
+            Integer tenantId, Integer academicYearId, LocalDate attendanceDate);
+
+    long countByTenantIdAndAcademicYearIdAndAttendanceDateAndStatus(
+            Integer tenantId, Integer academicYearId, LocalDate attendanceDate, String status);
 }
